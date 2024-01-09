@@ -1,0 +1,313 @@
+---
+title: "Stats 306: Lecture 1"
+subtitle: "Basic R and RMarkdown"
+author: "Jayashree Ravi"
+citation: Content adapted from slides by Dr. Mark Fredrickson
+output: 
+  learnr::tutorial:
+    progressive: true
+    css: css/lecture.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+```
+
+
+
+## Expressions and Statements
+
+If you stopped a running R program at some point in time, everything about the program is called its **state**.
+
+An **expression** is R code that, when run, provides a value (do not change state):
+
+```{r eval = F}
+3 + 4
+```
+
+Commands that change the **state** of the program are called **statements**, such as assignment:
+
+```{r}
+a <- 3 + 4
+```
+
+## Variables and Assignment
+
+A **variable** is a box to store data. We put the results of expressions into variables using **assignment**.
+
+```{r}
+a <- 7
+b <- 12
+c <- a + b
+print(c)
+```
+
+Rules for variable names: start with a letter then letters, numbers, `.`, `_`. 
+
+## REPL and State
+
+Suppose you entered the following at your R console:
+
+```{r repl-state-setup}
+a <- 3 + 1
+a <- 10 + 2
+```
+What would happen if you did the following?
+```{r repl-state, exercise = TRUE}
+print(a)
+```
+
+## The REPL and Chunks
+
+When you **knit** an RMarkdown document, RStudio **starts a new process**.
+
+Every time it encounters a **R chunk** it **evaluates** the R code inside and inserts the output into the document (default; can be changed). Like a behind the scenes REPL.
+
+
+## Order is important
+
+Because **statements** change the context, order of statements is very important. Compare
+```{r}
+a <- 7
+print(a)
+a <- 2
+```
+
+```{r warning=FALSE}
+a <- 7
+a <- 2
+print(a)  
+```
+
+## Working with code chunks, debugging hint
+
+If you run into a problem, use the `Session -> Restart R` to clean up, and the use "Run all chunks above". Then try the chunk again. You could also use the keyboard shortcuts suggested next to the button too.
+
+## What can go in variables?
+
+R has several different **data types**. Some common types:
+
+* **Numeric**: `7`, `3.22`, `9.1e2`
+* **Strings**: `"Hello"` or `'Hello'` (also called "character vectors")
+* **Logicals**: `TRUE` and `FALSE`
+* We'll see more data types going forward
+* These are also referred to as the **class** of the data.
+
+## Why are variables useful?
+
+* Avoid repeatedly typing in the same thing
+* Save the results of computations
+* Avoid recomputing same values
+* Separate what we are computing from any particular input (**abstraction**)
+
+## Exercise: Using variables
+
+Find the difference between 193 and 7. What is this value divided by two? What is this value divided by three? (Only compute the difference once.)
+```{r using-variables, exercise = TRUE, exercise.lines = 5}
+
+```
+
+## Style point: descriptive variable names
+
+* So far we have used names like `a` and `b`.
+* For large programs, having variable names that describe what they hold is much better
+* Compare `a` to `number_of_seconds_in_a_day`
+* In RStudio, it's just as easy to type with `TAB` completion
+* On HW assignments, we will be awarding points for *style* (readable code)
+
+## Functions 
+A key tool in any programming language is a **function**.
+
+* R functions behave (mostly) like mathematical functions $f(x)$.
+* They take **arguments** and return **values**
+* Encapsulate code (mini-programs)
+* Make it easy to repeat operations
+
+## Functions in R
+
+Once we have data stored in a variable, one of the main ways to use it is to **call a function.**
+
+```{r, eval = FALSE}
+return_value <- function_name(argument1, argument2, named_argument = additional_data, ...)
+```
+
+* Like math functions, we use the syntax `f()` to run the function
+* All **arguments** are **passed** to the function inside of the `()` separated by commas
+* Arguments can be passed in **positional** order or
+* Passed by **name**
+* Some arguments are **optional** when they have a default value
+* `...` means "any number of additional arguments"
+* `return_value` is the output of the function
+
+
+## Converting from degrees to radians
+
+Recall two ways to measure an angle:
+
+>* Degrees: 0 to 360
+>* Radians: 0 to 2$\pi$
+
+Exercise: compute the radian equivalent of 45 degrees (use a good variable name!). Then use the `sin(your_variable_name)` function to compute the sine of 45 degrees. (Hint: there is a built in variable named `pi`.)
+
+```{r sin45, exercise = TRUE}
+
+```
+
+## Defining functions
+
+```{r, results='hide'}
+mult <- function(x, y) { x * y }
+div <- function(x, y) { x / y }
+```
+
+Suppose we had `mult(x, y)` and `div(x, y)`.
+
+We could have written the previous calculation as 
+
+```{r}
+mult(2, mult(pi, div(45, 360)))
+```
+
+[Glimpse at R Vocabulary](http://adv-r.had.co.nz/Vocabulary.html)
+
+## `homework/example-homework.Rmd`
+
+Using an example homework file, we'll answer a few questions and prepare our HW for submission.
+
+After running all code, it turns the markdown into a web page (`example-homework.Rmd` => `example-homework.html`)
+
+
+## Function evaluation
+
+In R, when we call a function, first the **arguments** are evaluated, then the function is called.
+
+```{r}
+sin(mult(2, mult(pi, div(45, 360))))
+```
+Equivalent to:
+```{r}
+value1 <- div(45, 360)
+value2 <- mult(pi, value1)
+value3 <- mult(2, value2)
+sin(value3)
+```
+
+## Avoiding single use variables
+
+Sometimes we only need to use something once, so taking the time to come up with a variable name is unnecessary. 
+
+Instead we can use **pipes** to pass the output of one function to the **first argument** of a second function.
+
+```{r, eval = FALSE}
+value <- f()
+g(value)
+
+# pipes
+f() |> g()
+```
+
+Chaining pipes:
+```{r}
+div(45, 360) |>  
+  mult(pi) |>
+  mult(2) |>
+  sin()
+```
+
+## Functions as variables
+
+In R, **functions are variables** which means that we can use them like we would any other variable.
+
+```{r}
+print(10)
+print(mean)
+```
+
+
+
+## The `curve` function
+
+The `curve` function is a useful way to graph out a function:
+```{r, height = 4, width = 7}
+curve(sin)
+```
+
+
+## Changing the bounds of the plot
+
+`curve` can take more than just one argument,
+
+```{r, height = 3, width = 5}
+curve(sin, 0, 2 * pi)
+```
+
+## Optional and named arguments
+
+R allows you to use the name of arguments to pass them in any order:
+
+```{r}
+curve(to = 2 * pi, expr = sin, from = 0)
+```
+
+By *default* `from = 0` and `to = 1`
+
+
+## R's assignment operators
+
+R has two ways to store data in variables:
+
+```{r}
+variable_arrow <- 7
+variable_equal = 10
+variable_arrow + variable_equal
+```
+
+Arrow can also be reversed
+
+```{r}
+7 -> variable_reversed
+pi * variable_reversed
+pi |> sqrt() -> sqrt_pi
+sqrt_pi
+```
+
+There is a subtle difference between using `=` and `->`.  For example, the below function does not work if you use arrow. So for any function call key/value arguments, you have to use `=`
+
+
+```{r}
+x = c(10)
+try_me <- function(y = x){
+  print(y)
+}
+try_me(x)
+
+```
+
+## Some special values
+
+In addition to `pi`, R has some other built in variables (see help page for `Constants`).
+
+Also several special data values
+
+* `NA` means "missing". Including a `NA` value in a calculation will usually make the result also `NA`.
+* `NULL` means "not set yet" and is often used for optional arguments to functions
+* `NaN` means something was divided by zero or other mathematical impossibility.
+
+What will happen with this code?
+
+```{r na-prop, exercise = TRUE}
+angle_degrees <- NA
+angle_radians <- 2 * pi * angle_degrees / 360
+sin(angle_radians)
+```
+
+## Summary
+
+* RMarkdown documents: text and code chunks
+* R and the REPL
+* Variables: boxes to hold data
+* Functions: little programs that operate on data
+

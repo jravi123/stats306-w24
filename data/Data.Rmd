@@ -1,0 +1,78 @@
+---
+title: "Data"
+author: "Stats 306 Instructional Team"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+This file describes data used in the course Stats 306. Files are typically in compressed CSV form. To load the files, we recommend `readr::read_csv`.
+
+## Ann Arbor Weather Data
+
+* File: `ann_arbor_wether.csv.gz`
+
+TODO
+
+## City of Detroit crime event data
+
+* File:`RMS_Crime_Incidents.csv.gz`
+* Retrieved: 2022-09-19.
+* URL: https://data.detroitmi.gov/datasets/detroitmi::rms-crime-incidents/explore
+
+> This data reflects reported criminal offenses that have occurred in the City of Detroit. Offense data was extracted from the Detroit Police Department's records management system.
+>
+> This data reflects reported criminal offenses that have occurred in the City of Detroit. Offense data was extracted from the Detroit Police Department's records management system. This data set contains the most recent data available and is updated anytime DPD sends official crime records contributing to the Michigan Incident Crime Reporting (MICR) or the National Incident Based Reporting systems (reflected by the IBR Date field). It should be noted that some incidents involve the commission of multiple offenses, such as a domestic assault where property was also vandalized. Accordingly, the data describe all offenses associated with all reported incidents.
+
+## WikiArt Emotions Dataset
+
+* File: `WikiArt-Emotions-All.tsv.gz`
+* URL: http://saifmohammad.com/WebPages/wikiartemotions.html
+* Retrieved: 2022-10-06.
+
+> WikiArt Emotions is a dataset of 4,105 pieces of art (mostly paintings) that has annotations for emotions evoked in the observer. The pieces of art were selected from WikiArt.org's collection for twenty-two categories (impressionism, realism, etc.) from four western styles (Renaissance Art, Post-Renaissance Art, Modern Art, and Contemporary Art). WikiArt.org shows notable art in each category in a Featured page. We selected ~200 items from the featured page of each category. The art is annotated via crowdsourcing for one or more of twenty emotion categories (including neutral). In addition to emotions, the art is also annotated for whether it includes the depiction of a face and how much the observers like the art. We do not redistribute the art (images), we provide only the annotations.
+
+Paper citation: Saif M. Mohammad and Svetlana Kiritchenko. (2018). WikiArt Emotions: An Annotated Dataset of Emotions Evoked by Art. In Proceedings of the 11th edition of the Language Resources and Evaluation Conference, May 2018, Miyazaki, Japan.
+
+## Backbay National Wildlife Refuge Water Quality
+
+* File: `BKB_WaterQualityData_2020084.csv`
+* Date retrieved: 2022-10-11
+* URL: https://data.doi.gov/dataset/water-quality-data
+
+> Water quality data for the Refuge collected by volunteers collected once every two weeks: Turbidity, pH, Dissolved oxygen (DO), Salinity & Temperature. Sampling will occur at designated locations in the following water bodies: the Bay, D-Pool (fishing pond), C-Pool, B-Pool and A-Pool.
+
+## Provisional Cancer Death rates by demographic groups, type
+
+* File: `AH_Provisional_Cancer_Death_Counts_by_Month_and_Year__2020-2021.csv.gz`
+* Date retrieved: 2022-10-25
+* URL: https://catalog.data.gov/dataset/ah-provisional-cancer-death-counts-by-month-and-year-2020-2021
+
+> Provisional death counts of malignant neoplasms (cancer) by month and year, and other selected demographics, for 2020-2021. Data are based on death certificates for U.S. residents.
+
+
+## Great Lakes Water Levels
+
+* File: `GLHYD_data_english_cleaned.csv.gz`
+* Date retrieved: 2023-05-04
+* URL: https://www.lre.usace.army.mil/Missions/Great-Lakes-Information/Great-Lakes-Information-2/Water-Level-Data/
+
+The US Army Corps of Engineers (Detroit District) publishes water levels
+(averaged over several locations) for the Great Lakes. Note that they treat
+Michigan and Huron as a single body of water (which you might agree with if
+you've ever driven over the Mackinac Bridge), and Lake St. Clair gets its own
+readings. These values are expressed as (roughly) the height of the body of
+water above sea level.
+
+
+## Natural gas savings in Germany during the 2022 energy crisis
+
+* Files: `natural_gas_germany_daily.csv`, `dutch_ttf_natural_gas.csv`
+* Date retrieved: 2023-05-23
+* URL: https://www.nature.com/articles/s41560-023-01260-5
+
+> Russia curbed its natural gas supply to Europe in 2021 and 2022, creating a grave energy crisis. This Article empirically estimates the crisis response of natural gas consumers in Germany—for decades, the largest export market for Russian gas. Using a multiple regression model, we estimate the response of small consumers, industry and power stations separately, controlling for the nonlinear temperature-heating relationship, seasonality and trends. We find significant and substantial gas savings for all consumer groups, but with differences in timing and size. For instance, industry started reducing consumption as early as September 2021, while small consumers saved substantially only since March 2022. Across all sectors, gas consumption during the second half of 2022 was 23% below the temperature-adjusted baseline. We discuss the drivers behind these savings and draw conclusions on their role in coping with the crisis.
+

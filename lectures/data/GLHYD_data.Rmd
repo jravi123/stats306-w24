@@ -1,0 +1,26 @@
+---
+title: "Cleaning the Great Lakes Water Level Data"
+author: "Mark Fredrickson"
+date: "2023-05-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+glwl <- read_csv("./GLHYD_data_english.csv.gz", skip = 12) |>
+  pivot_longer(cols = -(1:2), names_to = "body", values_to = "height_ft")
+```
+
+```{r}
+yearly <- group_by(glwl, year, body) |> summarize(median_height_ft = median(height_ft))
+ggplot(yearly, aes(x = year, y = median_height_ft, col = body)) + geom_line()
+```
+
+
+```{r}
+write_csv(glwl, file = "./GLHYD_data_english_cleaned.csv.gz")
+```
