@@ -20,7 +20,7 @@ library(tidyverse)
 
 ## Expressions and Statements
 
-If you stopped a running R program at some point in time, everything about the program is called its **state**.
+When a program executes, you typically create temporary variables in the RAM of your computer. The values that these variables keep at any point of time during your R program execution is called its **state**.
 
 An **expression** is R code that, when run, provides a value (do not change state):
 

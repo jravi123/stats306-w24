@@ -102,6 +102,7 @@ R is a *statistical programming language*:
 In this course, all lectures, homework and labs will be run using Posit Cloud. 
 
 Alternative environments include:
+
 * Colab: https://colab.research.google.com/notebook#create=true&language=r
 * RStudio on your local machine. Download RStudio from here:https://posit.co/download/rstudio-desktop/
 * From R terminal after you download R:https://cran.rstudio.com/
@@ -121,7 +122,7 @@ Alternative environments include:
 
 You can import the GitHub class repository into your workspace by selecting the pptions as shown below
 
-<img src='./images/git-import.png />
+<img src='images/git-import.png' width='600' />
 
 
 ## Command line interfaces
@@ -259,5 +260,10 @@ We will use exercises in the slides like a REPL. Use the math operations `*`, `\
 
 ```{r repl, exercise = TRUE, exercise.lines = 3}
 
+
 ```
 The "Start Over" button will give you a fresh environment.
+
+## Next class 
+
+More on R fundamentals
