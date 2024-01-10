@@ -256,7 +256,7 @@ it were an R chunk, even though it is not really one. -->
 
 ## Trying out the REPL
 
-We will use exercises in the slides like a REPL. Use the math operations `*`, `\`, `+`, and `-` to compute twice the difference of 100 and 18. You can use `()` to group calculations.
+We will use exercises in the slides like a REPL. Use the math operations `*`, `/`, `+`, and `-` to compute twice the difference of 100 and 18. You can use `()` to group calculations.
 
 ```{r repl, exercise = TRUE, exercise.lines = 3}
 
