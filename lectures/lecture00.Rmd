@@ -109,9 +109,9 @@ Alternative environments include:
 
 ## How does git work?
 
-* Creates a **repository** (a hidden directory/folder) to information about the history of files
+* Creates a **repository** (a hidden directory/folder) to keep information about the history of files
 * When you make changes, you may **add** them to a **staging area**
-* When you think you have completed a functionalit, you **commit** your changes to save a snapshot.
+* When you think you have completed a functionality, you **commit** your changes to save a snapshot.
 * Git stores the **differences** ("diffs") from the previous version to your new version.
 * You can **push** your changes to a shared repository for others to use
 * You can **pull** from a shared repository and **merge** the changes of others.
@@ -120,9 +120,12 @@ Alternative environments include:
 
 ## How to get the repo to Posit?
 
-You can import the GitHub class repository into your workspace by selecting the pptions as shown below
+You can import the GitHub class repository into your workspace by selecting the options as shown below
 
 <img src='images/git-import.png' width='600' />
+
+However, if you are working with the shared workspace that I'm currently presenting from, you do not need to import from GitHub. However, make sure you save a permanent copy of the files you change as every file you open from the shared workspace will be temporarily saved on your account and will not be available for the next time unless you make it permanent by clicking on the relevant button.
+
 
 
 ## Command line interfaces
@@ -146,7 +149,7 @@ $ command -o --options argument1 argument2
 * `ls`: List files in current directory
 * `pwd`: Print working directory
 * `mkdir`: Make a new directory (folder)
-* `rm -r`: Recursively delete directories and everything inside (use carefully!)
+* `rm -r`: Recursively delete directories and everything inside (use carefully!). There is no recycle bin that keeps the deleted files when you run this command. All files are permanently gone!
 
 ## Git and the CLI
 
@@ -156,7 +159,7 @@ When interacting with git, we will use commands like this:
 $ git SUBCOMMAND -o --options ARG1 ARG2 ...
 ```
 
-Some example subcommands will be `pull` to get updates, `log` to see the history, `add` to stage files, and `commit` to commit changes.
+Some example sub commands will be `pull` to get updates, `log` to see the history, `add` to stage files, and `commit` to commit changes.
 
 ## Let git know who you are
 
@@ -169,7 +172,7 @@ $ git config --global user.email "YOUR EMAIL"
 
 Materials for this course are hosted at **GitHub**, a popular website front end for git. 
 
-To get a copy of them, **clone** the repository:
+To get a copy of them, **clone** the repository, say on your local computer, you would run:
 
 ```
 $ cd LOCATION_YOU_WANT_TO_STORE_REPO
@@ -256,7 +259,7 @@ it were an R chunk, even though it is not really one. -->
 
 ## Trying out the REPL
 
-We will use exercises in the slides like a REPL. Use the math operations `*`, `\`, `+`, and `-` to compute twice the difference of 100 and 18. You can use `()` to group calculations.
+We will use exercises in the slides like a REPL. Use the math operations; e.g., `*`, `/`, `+`, or `-` to compute twice the difference of 100 and 18. You can use `()` to group calculations.
 
 ```{r repl, exercise = TRUE, exercise.lines = 3}
 
