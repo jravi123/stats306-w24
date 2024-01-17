@@ -1,6 +1,6 @@
 ---
 title: "Stats 306: Lecture 1"
-subtitle: "Basic R and RMarkdown"
+subtitle: "Introduction to Stats 306"
 author: "Jayashree Ravi"
 citation: Content adapted from slides by Dr. Mark Fredrickson
 output: 
@@ -13,301 +13,260 @@ runtime: shiny_prerendered
 
 ```{r setup, include=FALSE}
 library(learnr)
-library(tidyverse)
+```
+
+## Stats 306: Introduction to Statistical Computing
+
+This course introduces basic concepts in computer programming and statistical computing techniques as they are applied to data extraction and manipulation, statistical processing and visualization. It is aimed primarily at undergraduate majors and minors in Statistics.
+
+*Enforced Pre-requisite: [DATASCI 101 or STATS 206 or STATS 250 OR STATS 280 OR STATS 412 or ECON 451 or IOE 265] AND prior or concurrent enrollment in [MATH 116 or MATH 121 or MATH 156 or MATH 176 or MATH 186 or any 200+ level math credit except for MATH 201].*
+
+## Syllabus
+
+Detailed [Syllabus](https://umich.instructure.com/courses/657882)
+
+Now we will go over some highlights
+
+## Learning Objectives
+
+By the end of this course, you will
+
+* have a rigorous understanding of the structure of computer programs including
+  * variables
+  * functions
+  * iteration
+  * input/output
+* have thorough familiarity with the R programming language and RStudio development environment
+* be able to load, manipulate, and present data
+* manage development projects using the Git version control package
+
+
+## Grading
+* Homework (25%). There will be about eight weekly problem sets. Most weeks, they will be posted on Friday and due the following Friday. Late submissions are not accepted, but we will drop your lowest two scores when calculating your homework average. You may discuss the homework with other students or use other resources from the Web, but you must write up your own solutions by understanding every statement that makes up your answer.
+* Exams:
+  * 2 Midterm Exams (50%). 
+* Final Group Project (25%). 
+
+I will award extra participation credit to students who consistently post high-quality questions or answers on Piazza. 
+
+## Working in Groups
+
+You are encouraged to work together on **all class material** to discuss
+solutions and debug. Each student must submit own work. Ask yourself, "Am I
+avoiding learning something in my actions?" If yes, don't do it.
+
+## Materials
+
+All books are freely available through our library system or online:
+
+* Our main text book is [R for Data Science (2ed)](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garett Grolemund
+* Later in the semester, we will pull additional material from
+    * [Advanced R](https://adv-r.hadley.nz/index.html)
+    * [Mastering Shiny](https://mastering-shiny.org/)
+* For learning git, we will use [Beginning Git and GitHub](https://search.lib.umich.edu/catalog/record/99187305231206381) by
+Mariot Tsitoara.
+* For statistical background, we suggest [Practical Statistics for Data Scientists](https://search.lib.umich.edu/catalog/record/99187344801606381)
+
+
+## Software
+
+* R: A statistical programming language
+* RStudio (Cloud): A development environment for R
+* Git: Version control and collaboration for software projects
+
+  
+## R, a statistical programming language
+
+R is a *statistical programming language*:
+
+* Statistical: designed for the manipulation and analysis of data
+* Programming: perform analysis through collection of instructions
+* Language: text based, as opposed to graphical, instructions
+
+## Why use R?
+
+* Purpose built for statistical analysis
+* Large collection of add-on libraries containing cutting edge resources
+* Being adopted by research, industry, government
+* Language of choice for statistical teaching (courses, books)
+
+## What is Git?
+
+* A **version control system** manages changes from multiple sources simultaneously.
+* A reasonable analogy: Google Docs with track changes turned on
+* Useful for groups working together to track changes to the software package and document why changes were made
+* We will use it to disseminate homework assignments, labs, and lecture materials.
+
+## Using our Posit Cloud
+
+In this course, all lectures, homework and labs will be run using Posit Cloud. 
+
+Alternative environments include:
+
+* Colab: https://colab.research.google.com/notebook#create=true&language=r
+* RStudio on your local machine. Download RStudio from here:https://posit.co/download/rstudio-desktop/
+* From R terminal after you download R:https://cran.rstudio.com/
+
+## How does git work?
+
+* Creates a **repository** (a hidden directory/folder) to keep information about the history of files
+* When you make changes, you may **add** them to a **staging area**
+* When you think you have completed a functionality, you **commit** your changes to save a snapshot.
+* Git stores the **differences** ("diffs") from the previous version to your new version.
+* You can **push** your changes to a shared repository for others to use
+* You can **pull** from a shared repository and **merge** the changes of others.
+* If there are **conflicts**, git will let you know and make you resolve them.
+* If you ever need to see what changed, you have the entire **history** of all changes to look at.
+
+## How to get the repo to Posit?
+
+You can import the GitHub class repository into your workspace by selecting the options as shown below
+
+<img src='images/git-import.png' width='600' />
+
+However, if you are working with the shared workspace that I'm currently presenting from, you do not need to import from GitHub. However, make sure you save a permanent copy of the files you change as every file you open from the shared workspace will be temporarily saved on your account and will not be available for the next time unless you make it permanent by clicking on the relevant button.
+
+
+
+## Command line interfaces
+
+While git has graphical interfaces, we will also learn to use a **command line interface** (CLI) for git.
+
+In an CLI you have an **interactive** prompt where you type a command. It might look something like this:
+
+```
+$ command -o --options argument1 argument2
+```
+
+* `$` is the prompt
+* `command` is what we want to do (e.g., `git`)
+* Optional flags have `-` or `--` in front and change behavior
+* We can tell what do with `argument1` and `argument2`. Some commands have no arguments.
+
+## Some basic CLI commands
+
+* `cd`: Change directory. 
+* `ls`: List files in current directory
+* `pwd`: Print working directory
+* `mkdir`: Make a new directory (folder)
+* `rm -r`: Recursively delete directories and everything inside (use carefully!). There is no recycle bin that keeps the deleted files when you run this command. All files are permanently gone!
+
+## Git and the CLI
+
+When interacting with git, we will use commands like this:
+
+```
+$ git SUBCOMMAND -o --options ARG1 ARG2 ...
+```
+
+Some example sub commands will be `pull` to get updates, `log` to see the history, `add` to stage files, and `commit` to commit changes.
+
+## Let git know who you are
+
+```
+$ git config --global user.name "YOUR NAME"
+$ git config --global user.email "YOUR EMAIL"
+```
+
+## Getting a copy of the Stats 306 Repository
+
+Materials for this course are hosted at **GitHub**, a popular website front end for git. 
+
+To get a copy of them, **clone** the repository, say on your local computer, you would run:
+
+```
+$ cd LOCATION_YOU_WANT_TO_STORE_REPO
+$ git clone https://github.com/jravi123/stats306-w24
+```
+
+## Getting future updates
+
+```
+$ cd PATH/TO/REPO
+$ git pull
+```
+
+## Saving changes to our local repo
+
+```
+$ git status
+$ git add FILENAME
+$ ... perhaps other files ...
+$ git commit -m "a note explaining changes"
 ```
 
 
+## What's in our project
 
-## Expressions and Statements
-
-When a program executes, you typically create temporary variables in the RAM of your computer. The values that these variables keep at any point of time during your R program execution is called its **state**.
-
-An **expression** is R code that, when run, provides a value (do not change state):
-
-```{r eval = F}
-3 + 4
-```
-
-Commands that change the **state** of the program are called **statements**, such as assignment:
-
-```{r}
-a <- 3 + 4
-```
-
-## Variables and Assignment
-
-A **variable** is a box to store data. We put the results of expressions into variables using **assignment**.
-
-```{r}
-a <- 7
-b <- 12
-c <- a + b
-print(c)
-```
-
-Rules for variable names: start with a letter then letters, numbers, `.`, `_`. 
-
-## REPL and State
-
-Suppose you entered the following at your R console:
-
-```{r repl-state-setup}
-a <- 3 + 1
-a <- 10 + 2
-```
-What would happen if you did the following?
-```{r repl-state, exercise = TRUE}
-print(a)
-```
-
-## The REPL and Chunks
-
-When you **knit** an RMarkdown document, RStudio **starts a new process**.
-
-Every time it encounters a **R chunk** it **evaluates** the R code inside and inserts the output into the document (default; can be changed). Like a behind the scenes REPL.
+>* Data sets we use
+>* Lab docs 
+>* Homework docs
+>* Lecture docs (like these)
 
 
-## Order is important
+All homework, labs, and lectures are **RMarkdown** documents.
 
-Because **statements** change the context, order of statements is very important. Compare
-```{r}
-a <- 7
-print(a)
-a <- 2
-```
+## RMarkdown documents
 
-```{r warning=FALSE}
-a <- 7
-a <- 2
-print(a)  
-```
+RMarkdown documents blend **code** and **presentation**. 
 
-## Working with code chunks, debugging hint
+General workflow:
+* Open `.Rmd` file
+* Run code in R chunks
+* Edit text and code to answer prompts
+* Knit to HTML file
+* (Homework/projects) submit HTML files on Gradescope for homework
 
-If you run into a problem, use the `Session -> Restart R` to clean up, and the use "Run all chunks above". Then try the chunk again. You could also use the keyboard shortcuts suggested next to the button too.
 
-## What can go in variables?
+## What is markdown?
 
-R has several different **data types**. Some common types:
+* Markdown files are **plain text** files that have special interpretation.
+* Came out of common conventions for adding expression to emails.
+* They have a header (denoted by `---`) and a body. We can **render** them to HTML to view in any web browser.
+* See the "Help -> Markdown Quick Ref" in RStudio for more details.
 
-* **Numeric**: `7`, `3.22`, `9.1e2`
-* **Strings**: `"Hello"` or `'Hello'` (also called "character vectors")
-* **Logicals**: `TRUE` and `FALSE`
-* We'll see more data types going forward
-* These are also referred to as the **class** of the data.
+## RMarkdown
 
-## Why are variables useful?
+* RMarkdown extends basic markdown to allow embedding R code within the document.
+* It addition to formatting text, you can include code **chunks**.
+* When you **knit** the document, first the code is evaluated, then the results are added to the markdown document. Then that is turned into a web page.
+* In addition to text and numeric output, plots and graphs are automatically inserted into the output.
+* There are options to control how chunks are presented, cache computations to speed up knitting, etc.
 
-* Avoid repeatedly typing in the same thing
-* Save the results of computations
-* Avoid recomputing same values
-* Separate what we are computing from any particular input (**abstraction**)
+## Chunks in Rmd files
 
-## Exercise: Using variables
+All chunks have the following form:
 
-Find the difference between 193 and 7. What is this value divided by two? What is this value divided by three? (Only compute the difference once.)
-```{r using-variables, exercise = TRUE, exercise.lines = 5}
+<!-- The extra stuff is to get this print out as if
+it were an R chunk, even though it is not really one. -->
+<pre><code>```{r name, key = value, ...}
+... R code goes here ...
+<span>```</span></code></pre>
+
+* The `name` is optional but helps when you get an error.
+* The `key = value` controls the behavior of the chunk (optional). Example, `include = FALSE` to hide chunk. Refer:[chunk options](https://rstudio.github.io/cheatsheets/html/rmarkdown.html?#chunk-options)
+
+* `CTRL-ALT-I` inserts a new chunk your RMarkdown document.
+
+
+## R's Read-Evaluate-Print-Loop (REPL)
+
+* The **Console** in R lets you interact with a running R process.
+* When you type in in the console, R **reads** the command to make sure it is valid R code.
+* R **evaluates** the valid code -- produce the result of the computation
+* R **prints** the result back to the console.
+* The process then repeats (**loop**)
+
+## Trying out the REPL
+
+We will use exercises in the slides like a REPL. Use the math operations; e.g., `*`, `/`, `+`, or `-` to compute twice the difference of 100 and 18. You can use `()` to group calculations.
+
+```{r repl, exercise = TRUE, exercise.lines = 3}
+
 
 ```
+The "Start Over" button will give you a fresh environment.
 
-## Style point: descriptive variable names
+## Next class 
 
-* So far we have used names like `a` and `b`.
-* For large programs, having variable names that describe what they hold is much better
-* Compare `a` to `number_of_seconds_in_a_day`
-* In RStudio, it's just as easy to type with `TAB` completion
-* On HW assignments, we will be awarding points for *style* (readable code)
-
-## Functions 
-A key tool in any programming language is a **function**.
-
-* R functions behave (mostly) like mathematical functions $f(x)$.
-* They take **arguments** and return **values**
-* Encapsulate code (mini-programs)
-* Make it easy to repeat operations
-
-## Functions in R
-
-Once we have data stored in a variable, one of the main ways to use it is to **call a function.**
-
-```{r, eval = FALSE}
-return_value <- function_name(argument1, argument2, named_argument = additional_data, ...)
-```
-
-* Like math functions, we use the syntax `f()` to run the function
-* All **arguments** are **passed** to the function inside of the `()` separated by commas
-* Arguments can be passed in **positional** order or
-* Passed by **name**
-* Some arguments are **optional** when they have a default value
-* `...` means "any number of additional arguments"
-* `return_value` is the output of the function
-
-
-## Converting from degrees to radians
-
-Recall two ways to measure an angle:
-
->* Degrees: 0 to 360
->* Radians: 0 to 2$\pi$
-
-Exercise: compute the radian equivalent of 45 degrees (use a good variable name!). Then use the `sin(your_variable_name)` function to compute the sine of 45 degrees. (Hint: there is a built in variable named `pi`.)
-
-```{r sin45, exercise = TRUE}
-
-```
-
-## Defining functions
-
-```{r, results='hide'}
-mult <- function(x, y) { x * y }
-div <- function(x, y) { x / y }
-```
-
-Suppose we had `mult(x, y)` and `div(x, y)`.
-
-We could have written the previous calculation as 
-
-```{r}
-mult(2, mult(pi, div(45, 360)))
-```
-
-[Glimpse at R Vocabulary](http://adv-r.had.co.nz/Vocabulary.html)
-
-## `homework/example-homework.Rmd`
-
-Using an example homework file, we'll answer a few questions and prepare our HW for submission.
-
-After running all code, it turns the markdown into a web page (`example-homework.Rmd` => `example-homework.html`)
-
-
-## Function evaluation
-
-In R, when we call a function, first the **arguments** are evaluated, then the function is called.
-
-```{r}
-sin(mult(2, mult(pi, div(45, 360))))
-```
-Equivalent to:
-```{r}
-value1 <- div(45, 360)
-value2 <- mult(pi, value1)
-value3 <- mult(2, value2)
-sin(value3)
-```
-
-## Avoiding single use variables
-
-Sometimes we only need to use something once, so taking the time to come up with a variable name is unnecessary. 
-
-Instead we can use **pipes** to pass the output of one function to the **first argument** of a second function.
-
-```{r, eval = FALSE}
-value <- f()
-g(value)
-
-# pipes
-f() |> g()
-```
-
-Chaining pipes:
-```{r}
-div(45, 360) |>  
-  mult(pi) |>
-  mult(2) |>
-  sin()
-```
-
-## Functions as variables
-
-In R, **functions are variables** which means that we can use them like we would any other variable.
-
-```{r}
-print(10)
-print(mean)
-```
-
-
-
-## The `curve` function
-
-The `curve` function is a useful way to graph out a function:
-```{r, height = 4, width = 7}
-curve(sin)
-```
-
-
-## Changing the bounds of the plot
-
-`curve` can take more than just one argument,
-
-```{r, height = 3, width = 5}
-curve(sin, 0, 2 * pi)
-```
-
-## Optional and named arguments
-
-R allows you to use the name of arguments to pass them in any order:
-
-```{r}
-curve(to = 2 * pi, expr = sin, from = 0)
-```
-
-By *default* `from = 0` and `to = 1`
-
-
-## R's assignment operators
-
-R has two ways to store data in variables:
-
-```{r}
-variable_arrow <- 7
-variable_equal = 10
-variable_arrow + variable_equal
-```
-
-Arrow can also be reversed
-
-```{r}
-7 -> variable_reversed
-pi * variable_reversed
-pi |> sqrt() -> sqrt_pi
-sqrt_pi
-```
-
-There is a subtle difference between using `=` and `->`.  For example, the below function does not work if you use arrow. So for any function call key/value arguments, you have to use `=`
-
-
-```{r}
-x = c(10)
-try_me <- function(y = x){
-  print(y)
-}
-try_me(x)
-
-```
-
-## Some special values
-
-In addition to `pi`, R has some other built in variables (see help page for `Constants`).
-
-Also several special data values
-
-* `NA` means "missing". Including a `NA` value in a calculation will usually make the result also `NA`.
-* `NULL` means "not set yet" and is often used for optional arguments to functions
-* `NaN` means something was divided by zero or other mathematical impossibility.
-
-What will happen with this code?
-
-```{r na-prop, exercise = TRUE}
-angle_degrees <- NA
-angle_radians <- 2 * pi * angle_degrees / 360
-sin(angle_radians)
-```
-
-## Summary
-
-* RMarkdown documents: text and code chunks
-* R and the REPL
-* Variables: boxes to hold data
-* Functions: little programs that operate on data
-
+More on R fundamentals

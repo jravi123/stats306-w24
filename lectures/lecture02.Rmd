@@ -1,0 +1,577 @@
+---
+title: "Stats 306: Lecture 2"
+subtitle: "Basic R,  Tables, Vectors, and ggplot"
+author: "Jayashree Ravi"
+citation: Content adapted from slides by Dr. Mark Fredrickson
+output: 
+  learnr::tutorial:
+    progressive: true
+    css: css/lecture.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+options(readr.show_progress = T)
+```
+
+## Review - Expressions and Statements
+
+When a program executes, you typically create temporary variables in the RAM of your computer. The values that these variables keep at any point of time during your R program execution is called its **state**.
+
+An **expression** is R code that, when run, provides a value (do not change state):
+
+```{r eval = F}
+3 + 4
+```
+
+Commands that change the **state** of the program are called **statements**, such as assignment:
+
+```{r}
+a <- 3 + 4
+```
+
+
+
+**Variables and Assignment**
+
+A **variable** is a box to store data. We put the results of expressions into variables using **assignment**.
+
+```{r}
+a <- 7
+b <- 12
+c <- a + b
+print(c)
+```
+
+Rules for variable names: start with a letter then letters, numbers, `.`, `_`. 
+
+
+
+
+## The REPL and Chunks
+
+When you **knit** an RMarkdown document, RStudio **starts a new process**.
+
+Every time it encounters a **R chunk** it **evaluates** the R code inside and inserts the output into the document (default; can be changed). Like a behind the scenes REPL.
+
+
+**Order is important**
+
+Because **statements** change the context, order of statements is very important.
+
+```{r warning=FALSE}
+a <- 7
+a <- 2
+print(a)  
+```
+
+**Working with code chunks, debugging hint**
+
+If you run into a problem (for e.g., a weird behavior that you can't explain logically), use the `Session -> Restart R` to clean up, and the use "Run all chunks above". Then try the chunk again. 
+
+## What can go in variables?
+
+R has several different **data types**. Some common types:
+
+* **Numeric**: `7`, `3.22`, `9.1e2`
+* **Strings**: `"Hello"` or `'Hello'` (also called "character vectors")
+* **Logicals**: `TRUE` and `FALSE`
+* We'll see more data types going forward
+* These are also referred to as the **class** of the data.
+
+## Why are variables useful?
+
+* Avoid repeatedly typing in the same thing
+* Save the results of computations
+* Avoid recomputing same values
+* Separate what we are computing from any particular input (**abstraction**)
+
+**Exercise: Using variables**
+
+Find the difference between 193 and 7. What is this value divided by two? What is this value divided by three? (Only compute the difference once.)
+```{r using-variables, exercise = TRUE, exercise.lines = 5}
+
+```
+
+## Style point: descriptive variable names
+
+* So far we have used names like `a` and `b`.
+* For large programs, having variable names that describe what they hold is much better
+* Compare `a` to `number_of_seconds_in_a_day`
+* In RStudio, it's just as easy to type with `TAB` completion
+* On HW assignments, we will awarding for good *style* (readable code)
+* You are encouraged to follow the coding style suggested by tidyverse: https://style.tidyverse.org/
+
+## Functions 
+A key tool in any programming language is a **function**.
+
+* R functions behave (mostly) like mathematical functions $f(x)$.
+* They take **arguments** and return **values**
+* Encapsulate code (mini-programs)
+* Make it easy to repeat operations
+
+**Syntax**
+
+```{r, eval = FALSE}
+return_value <- f(argument1, argument2, named_argument = additional_data, ...)
+```
+
+* Like math functions, we use the syntax `f()` to run the function
+* All **arguments** are **passed** to the function inside of the `()` separated by commas
+* Arguments can be passed in **positional** order or
+* Passed by **name**
+* Some arguments are **optional** when they have a default value
+* `...` means "any number of additional arguments"
+* `return_value` is the output of the function
+
+
+## Defining functions
+
+```{r, results='hide'}
+mult <- function(x, y) { 
+  print(paste('x = ' , x))
+  x * y 
+}
+```
+
+The `mult` function takes in two arguments and multiplies them
+
+```{r}
+mult(2, 10)
+mult(y = 5, x = 3)
+```
+There are many built-in functions in R that you can simply use.
+
+[Glimpse at R Vocabulary](http://adv-r.had.co.nz/Vocabulary.html)
+
+
+## Function evaluation
+
+In R, when we call a function, first the **arguments** are evaluated, then the function is called.
+
+```{r}
+mult(2, mult(2,3))
+```
+
+
+## Avoiding single use variables
+
+Sometimes we only need to use something once, so taking the time to come up with a variable name is unnecessary. 
+
+Instead we can use **pipes** to pass the output of one function to the **first argument** of a second function.
+
+```{r, eval = FALSE}
+value <- f()
+g(value)
+
+# pipes
+f() |> g()
+```
+
+```{r}
+mult(2.5, 3) |> round()
+```
+
+In older R programs, you also see another notation for pipe `%>%`.
+With this notation the same expression can be 
+
+```{r}
+mult(2.5, 3) %>% round
+```
+
+Note: We did not have to put the pair of parenthesis for this notation. If you do put, it doesn't hurt
+
+
+## R's assignment operators
+
+R has two ways to store data in variables:
+
+```{r}
+variable_arrow <- 7
+variable_equal = 10
+variable_arrow + variable_equal
+```
+
+Arrow can also be reversed
+
+```{r}
+7 -> variable_reversed
+pi * variable_reversed
+pi |> sqrt() -> sqrt_pi
+sqrt_pi
+```
+
+There is a subtle difference between using `=` and `->`.  For example, the below function does not work if you use arrow. So for any function call key/value arguments, you have to use `=`
+
+
+```{r}
+x = c(10)
+try_me <- function(y = x){
+  print(y)
+}
+try_me(x)
+
+```
+
+## Some special values
+
+R has special data values
+
+* `NA` means "missing". Including a `NA` value in a calculation will usually make the result also `NA`.
+* `NULL` means "not set yet" and is often used for optional arguments to functions
+* `NaN` means something was divided by zero or other mathematical impossibility.
+
+What will happen with this code?
+
+```{r na-prop}
+values = c(1, 2, NA)
+mean(values)
+```
+
+Instead add the keyword argument `na.rm = T` to instruct the function to first remove all the NA values and then compute the mean
+
+```{r}
+mean(values, na.rm = T)
+```
+Let us try a few more expressions with NA
+
+```{r nan-tryouts, exercise = TRUE, exercise.lines = 5}
+
+```
+
+
+## Lists and Vectors
+
+* A **vector** is an ordered collection of the same type of data. Created using the `c` function (concatenate).
+* A **list** is an ordered collection of (potentially) different types of data. Created using the `list` function.
+* Both can have **names** to indicate individual items.
+
+**Vector example**
+
+```{r}
+phone_digits <- c(8, 6, 7, 4, 3, 0, 9)
+phone_plus_area_code <- c(7, 3, 4, phone_digits)
+print(phone_plus_area_code)
+length(phone_plus_area_code)
+sum(phone_plus_area_code)
+str_flatten(phone_plus_area_code)
+```
+
+We will learn more on *str* functions when we learn Strings.
+
+**List example**
+
+Lists are heterogeneous while vectors are homogeneous
+
+```{r}
+mixed_type_list <- list(3, 4, phone_digits)
+mixed_type_list
+list("umich", 1, T)
+c("umich", 1, T)
+```
+
+
+
+## Vectors, indexing
+
+The `runif` function will create randomly generated values in the range (0, 1).
+
+```{r}
+random_u01 <- runif(10) # create 10 values
+print(random_u01)
+random_u01[1] # first item
+random_u01[10] # last item
+random_u01[-1] # all but first
+random_u01[1:3] # first three
+random_u01[c(1, 3, 7, 1)]
+```
+
+
+
+## Relational Operators
+
+```{r}
+x <- 1
+y <- 2
+
+x < y
+x > y
+x <= y
+x >= y
+x == y
+x != y
+
+!(x == y) # negation
+```
+
+## Vectors, subsetting using relational operators
+
+```{r}
+random_u01
+less_than_0.5 <- random_u01 < 0.5
+print(less_than_0.5)
+random_u01[less_than_0.5]
+keep(random_u01, random_u01 < 0.5)
+random_u01[!less_than_0.5]
+```
+
+
+## Named collections
+
+Vectors can have names (`c(first = 1, second = 22, third = 333)`), but names for lists are more common.
+```{r}
+named_list <- list(a_string = "A string", a_vector = 1:4)
+named_list[["a_string"]] # note double brackets
+named_list$a_vector
+```
+
+
+## Tables in R
+
+In data analytics we often work with Tabular data where:
+
+>* columns are variables
+>* rows are observations
+
+A tabular data is presented using a `tibble` or `data.frame`.
+When we construct new tabular data, we will use `tibble` as that is a better data structure than `data.frame`. However many existing libraries use `data.frame`.
+We will treat them interchangeably for the most part.
+
+You construct a simple tibble with two columns named `a` and `b` as shown below
+
+```{r}
+tibble(a = c(1:10),
+       b = c(11:20))
+```
+
+There are many tabular datasets readily available when we load `tidyverse` among them `mpg` is one of them. There are many functions you can use on the tibble and here we will see some of them
+
+```{r}
+glimpse(mpg)
+class(mpg)
+dim(mpg)
+colnames(mpg)
+head(mpg)
+```
+
+## Accessing individual columns
+
+Recall, the `$` operator lets us get items from lists:
+
+```{r}
+mpg$hwy |> mean() # equiv to mean(mpg$hwy)
+```
+
+## Other functions for basic descriptive statistics
+
+```{r}
+sum(mpg$hwy)
+var(mpg$hwy)
+sqrt(var(mpg$hwy)) # standard deviation
+median(mpg$hwy)
+IQR(mpg$hwy)
+quantile(mpg$hwy, c(0.25, 0.75))
+```
+
+All at once
+
+```{r}
+summary(mpg)
+```
+
+## Dealing with missingness
+
+To delete the missing values we have some options. Let us look into the `storms` data; another tabular data provided by NOAA Atlantic hurricane database representing the positions and attributes of storms from 1975-2022. 
+
+```{r}
+storms$category |> mean()
+storms$category |> mean(na.rm = T)
+na.omit(storms$category) |> mean()
+storms$category[!is.na(storms$category)] |> mean()
+```
+
+## Plotting: Visual representation of data
+
+**Graphing** or **plotting** is the representation of data in a visual form, typically on a 2D plane.
+
+Humans have a wonderful ability to process visual stimuli quickly.
+
+Great for displaying large data sets that might be difficult to describe.
+
+**But Plotting ain't easy**
+
+* What exactly can we put in a plot?
+* How to connect the plot to data?
+* What are our goals for the plot?
+* What additional information is necessary to understand the plot?
+
+## The Semiology of Graphics
+
+In 1967, **Jacques Bertin** published the *Semiology of Graphics* to describe common elements of plots and what they could achieve.
+
+Bertin described two ways of thinking about plots:
+
+1. Visual ("retinal") variables: connections between objects in the plot and underlying data
+2. Relationship what types of relationships can the visual variables express
+
+## Visual variables/retinal variables:
+
+* Position/planar dimensions
+* Size (small to large)
+* Value (light to dark)
+* Texture (pattern)
+* Color (discrete or continuously varying)
+* Orientation (angle/rotation)
+* Shape (usually distinct shapes)
+
+
+
+[Visual Variables](https://en.wikipedia.org/wiki/Visual_variable)
+
+## The Grammar of Graphics and `ggplot`
+
+A follow up to Bertin's work was *The Grammar of Graphics* by Leland Wilkinson.
+This book described a programming language for graphics based on ideas in
+Bertin's system.
+
+The GoG was implemented for R in `ggplot` (and later replaced by `ggplot2`). 
+
+## The main components of a ggplot graph
+
+* The graph object itself (creating using `ggplot(data)`)
+* A set of *aesthetic* mappings (connecting data to visual variables)
+* Layers: collections of geometric elements (`geom_*()`) and statistical transformations (`stat_*()`)
+* Scales: information on the range or composition of variables
+* Coordinate systems: how the data are arranged spatially
+* Facet: breaking a single plot into many, similar plots by grouping the data into multiple facets
+* Theme: all the other color and printing aspects of the plot
+
+## Creating a ggplot
+
+Start use the `ggplot` function to start our plot
+```{r}
+efficiency <- ggplot(data = mpg)
+efficiency # for now, blank
+```
+
+
+
+**What can we plot?** Let us take a glimpse of the dataset
+```{r}
+glimpse(mpg)
+```
+
+"Aesthetic" mappings connect columns to visual variables
+```{r}
+efficiency <- ggplot(data = mpg,
+                     aes(x = displ, y = hwy, color = cyl))
+
+efficiency
+```
+displ: engine displacement is the measure of the total volume of all the cylinders in an internal combustion engine.
+hwy: highway miles/gallon
+cyl: number of cylinders
+
+
+But the chart is still blank? Well we need to add the geometric layer to define how to display the visual elements
+
+## Geometries: objects on the plot
+
+We will use a **geometry function** (have the form `geom_TYPE()`).
+
+```{r}
+efficiency + geom_point()
+```
+
+**Alternative forms**
+
+```{r eval = F}
+
+ggplot(data = mpg) + geom_point(aes(x = displ, y = hwy, color = cyl))
+
+mpg |> ggplot() + geom_point(aes(x = displ, y = hwy, color = cyl))
+```
+
+## Exercise: Great Lakes water levels
+
+Here's a data set from the US Army Corps of Engineers showing the height of the Great Lakes (with Michigan and Huron being one body) above sea level, aggregate by year.
+
+```{r}
+glwl <- read_csv("data/GLHYD_data_english_cleaned.csv.gz") |>
+  group_by(body, year) |> summarize(ht = median(height_ft)) |> ungroup()
+glwl
+```
+
+Use this data set to make a scatter plot of the height of each lake in each year, colored by which `body` the reading is from.
+
+```{r glwl-plot-setup}
+
+glwl <- read_csv("data/GLHYD_data_english_cleaned.csv.gz") |>
+  group_by(body, year) |> summarize(ht = median(height_ft)) |> ungroup()
+```
+
+```{r glwl-plot, exercise = TRUE}
+
+```
+
+Improve your plot by changing it to a `geom_line()`
+
+## What aesthetic mappings can I use?
+
+
+**Trying out some other mappings**
+
+```{r}
+ggplot(data = mpg,
+       aes(x = displ, y = hwy, size = cyl, color = class)) + 
+  geom_point()
+```
+
+Visit the docs to learn more: [geom_point](https://ggplot2.tidyverse.org/reference/geom_point.html)
+
+## Using expressions
+
+We can also use expressions involving columns.
+
+```{r}
+ggplot(data = mpg, aes(x = displ, y = hwy, shape = year > 2000)) + 
+  geom_point()
+```
+
+## Overriding parameters for all points
+
+We can pass in constants that apply to all points (size and transparency):
+
+```{r}
+ggplot(data = mpg, aes(x = displ, y = hwy, shape = year > 2000)) + 
+  geom_point(size = 5)
+```
+
+## Jitter: useful noise
+
+```{r}
+ggplot(data = mpg, aes(x = displ, y = hwy)) + 
+  geom_point(position = "jitter")
+```
+
+
+## List of geometries
+
+[More ggplot documentation](https://ggplot2.tidyverse.org/reference/index.html#geoms).
+
+
+## General observations
+
+* Generally limit plots to having 3 or 4 distinct visual variables
+* Typically only one geometry type, but there are some great counter examples
+* Almost everything can be tweaked in ggplot, finding it is the tricky part
+* The [R Graph Gallery](https://r-graph-gallery.com/) is a great source of inspiration and instruction
+
+## `homework/example-homework.Rmd`
+
+Using an example homework file, we'll answer a few questions and prepare our HW for submission.
+
+After running all code, it turns the markdown into a web page (`example-homework.Rmd` => `example-homework.html`)
