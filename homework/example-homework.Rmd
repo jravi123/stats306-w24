@@ -23,5 +23,6 @@ Compute the mean and variance of the following observations.
 
 ```{r}
 x <- c(30, 11, 29, 59, 38)
-
+mean(x)
+var(x)
 ```
