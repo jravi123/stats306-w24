@@ -18,7 +18,7 @@ library(tidyverse)
 
 ## Review: More on R
 
-* Learned more about R's functions (required and optional arguments); `f(x, y =10)`
+* Learned more about R's functions (required and optional arguments); `f(x, y = 10)`
 * Piping and assignment; `|>, =`
 * Special values: `NA`, `NULL`, and `NaN`
 * Vectors: ordered collections of same type, many computations are *vectorized*; See example below
