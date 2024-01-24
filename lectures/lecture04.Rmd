@@ -18,20 +18,23 @@ library(lubridate) # install.packages("lubridate") if you don't have this
 ```
 
 
-## Quantitative vs. Nominal measurements in R
+## Quantitative vs. Categorical measurements in R
 
-We will not overly emphasize the difference between **quantitative** (continuous, numerical) data and **nominal** (discrete, categorical) data *but* it's good to know how R handles these things.
 
 ```{r}
 class(c(1.0, 2.2, 3.14159)) # quantitative
-class(mpg$cyl) # quantitative
-class(mpg$class) # nominal
-class(factor(mpg$cyl)) # nominal
+class(mpg$cyl) # quantitative (but is it a continuous variable?)
+class(mpg$class) # categorical (nominal)
+class(factor(mpg$cyl)) # categorical (nominal)
+```
+
+```{r nominal-test, exercise = T}
+
 ```
 
 ## `ggplot` and types of data
 
-Some aesthetic mappings behave differently if they have quantitative or nominal columns.
+Some aesthetic mappings behave differently if they have quantitative or categorical columns.
 
 By default, `cyl` will be treated as quantitative:
 ```{r}
@@ -39,14 +42,14 @@ ggplot(data = mpg, aes(x = hwy, y = cty, color = cyl)) +
   geom_jitter(size = 2)
 ```
 
-**Forcing variables to be nominal**
+**Forcing variables to be categorical**
 
 ```{r}
 ggplot(data = mpg, aes(x = hwy, y = cty, color = factor(cyl))) +
   geom_jitter(size = 2)
 ```
 
-## Geometries that expect nominal mappings
+## Geometries that expect categorical mappings
 
 ```{r}
 ggplot(data = mpg, aes(x = cyl, y = cty)) +
@@ -103,6 +106,10 @@ ggplot(data = mpg, aes(x = cty, y = hwy)) +
   facet_wrap(~ class)
 ```
 
+```{r facet-eg, exercise = T}
+
+```
+
 Faceting sub groups the dataset based on each distinct value of the column `class` and then plots the 'x' and 'y' specified.
 
 ## Forcing on one row
@@ -140,14 +147,21 @@ ggplot(data = mpg, aes(x = cty, y = hwy)) +
   facet_wrap(~ class + drv) 
 ```
 
+```{r facet-eg2, exercise=T}
+
+```
+
 ## Two way facets (`facet_grid`)
 
 ```{r warning = FALSE}
 ggplot(data = mpg, aes(x = cty, y = hwy)) +
   geom_jitter() +
   stat_smooth() + 
-  facet_grid(drv ~ class)
+  facet_grid(vars(drv), vars(cyl))
 ```
+
+Use vars() to supply variables from the dataset
+
 
 ## Exercise
 
