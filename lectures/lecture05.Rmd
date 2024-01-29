@@ -155,11 +155,11 @@ filter(d3, column_y > 105 & column_x < 9)
 
 # preferred alternative
 
-filter(d3, column_y > 105 , column_x < 9)
+filter(d3, column_y > 105, column_x < 9)
 ```
 
 ```{r}
-filter(d3, column_y > 108 | column_x  < 3)
+filter(d3, column_y > 108 | column_x < 3)
 ```
 
 ## Exercise
@@ -284,8 +284,8 @@ d <- data.frame(x = c(-0.19, 1.35, 1.21, -0.11, -0.99,
 ```{r topcoding-solution}
 d <- data.frame(x = c(-0.19, 1.35, 1.21, -0.11, -0.99, 
                       -0.4, -0.04, -0.4, 0.82, -1.55))
-d <- mutate(d, x = if_else(x > 1, 1, -1))
-d |> head()
+d |> mutate(x = if_else(x > 1, 1, x),
+            x = if_else(x < -1, -1, x)) |> head(10)
 ```
 
 ## `transmute`: `mutate` + `select`
