@@ -1,0 +1,197 @@
+---
+title: "Stats 306: Lecture 6"
+subtitle: "More Grouping and Summaries; Functions"
+author: "Jayashree Ravi"
+citation: "Content adapted from slides by Dr. Mark Fredrickson"
+output: 
+  learnr::tutorial:
+    progressive: true
+    css: css/lecture.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(lubridate) # install.packages("lubridate") if you don't have this
+aatemp <- read_csv("data/ann_arbor_weather.csv.gz")
+```
+
+## Review: `mutate`
+
+* `mutate`: Takes a table and returns a new table with columns added and/or subtracted
+* `mutate(d, new_col = f(x, y), new_col2 = new_col1 + 1, old_col = NULL)`
+* `if_else(cond, true, false)` (all are vectors of same length or single values): used `TRUE` and `FALSE` values in `cond` to pick value from `true` and `false` (respectively)
+* Can use functions that summarize, e.g., `mutate(d, x_centered = x - mean(x))`
+
+## Review: `groups and summaries`
+
+* We often want to **partition** our data into smaller groups
+* Things like finding **conditional means** or **conditional medians**
+* `group_by` takes one or more grouping factors and creates a grouped table
+* `summarize` computes group level summaries
+* We'll see that `mutate` operates within groups, which can be quite helpful
+
+## Temperature data for Ann Arbor, MI
+
+```{r}
+aatemp
+```
+
+## `mutate` to add a column
+
+```{r}
+aatemp_cel <- mutate(aatemp, TMAX_celsius = (TMAX - 32) * 5/9) |>
+  select(TMAX, TMAX_celsius)
+```
+
+## Grouping by year
+```{r}
+aat_year <- group_by(aatemp, year(DATE))
+summarize(aat_year, median(TMAX - TMIN, na.rm = TRUE))
+```
+## Useful functions for summaries
+
+* Seen before: `mean`, `median`, `sd`, `min`, `max`
+* Other common statistical measures: `quantile`, `IQR`
+* For boolean/logical columns: `any` and `all` ("or" and "and" across vectors)
+* The functions `n` and a `n_distinct` count units and distinct values
+
+## Some more summaries
+
+```{r}
+summarize(aat_year, n(), n_distinct(TMAX), any(SNOW > 10))
+```
+
+## Centered temperature
+
+```{r}
+mutate(aatemp, TMAX_centered = TMAX - mean(TMAX)) |>
+ ggplot(aes(y = TMAX_centered, x = factor(quarter(DATE)))) +
+    geom_violin() 
+```
+
+## `mutate` and `group_by`
+
+Observe some care when using `mutate` on grouped tables:
+
+```{r}
+group_by(aatemp, quarter(DATE)) |>
+  mutate(TMAX_centered = TMAX - mean(TMAX)) |>
+  ggplot(aes(y = TMAX_centered, x = factor(`quarter(DATE)`))) +
+    geom_violin()
+```
+
+## Normalizing by monthly averages?
+
+Let's center each observation by it's monthly average that we can understand if
+it was unusual for that time of year.
+
+```{r}
+aat_month_centered <- group_by(aatemp, month(DATE)) |>
+  mutate(TMAX_centered = TMAX - mean(TMAX, na.rm = TRUE)) # mean computed over months
+## verify 
+summarize(aat_month_centered, var(TMAX_centered), sum(TMAX_centered^2) / (n() - 1)) |>
+  head(3)
+```
+
+## Unusual months continued: conversion to ranks
+
+*Ranks* are a useful robust replacement for values that are less susceptible to outliers. Let's rank days by how far they were from their monthly mean.
+
+**Danger**: mutate will operate within months!
+
+```{r}
+mutate(aat_month_centered, r = rank(TMAX_centered)) |> 
+  summarize(min(r), max(r))
+```
+
+## Ungrouping to fix
+
+We need to drop the grouping values so that we can rank across all days.
+
+```{r}
+ungroup(aat_month_centered) |> 
+  mutate(aat_month_centered, r = rank(TMAX_centered)) |>
+  summarize(min(r), max(r))
+```
+
+## Average rank within years
+
+Now that we can rank across all years and months, what year had the highest
+average ranks?
+
+```{r}
+ungroup(aat_month_centered) |> 
+  mutate(aat_month_centered, r = rank(TMAX_centered)) |>
+  group_by(year(DATE)) |>
+  summarize(mean(r)) |>
+  arrange(desc(`mean(r)`))
+```
+
+## Exercise
+
+Let's put it all together using the `mpg` data set.
+
+>* Get a list of manufacturers that produce cars in at least 2 different classes. (Recall `n_distinct` function)
+>* Using that list, subset the `mpg` data to just those manufactures
+>* Rescale the highway efficiency variable into Z-scores (using the common mean across all manufacturers)
+>* Group the observations by manufacturer. Which one has the smallest variance in `cty` efficiency?
+
+You may want to use `%in%`:
+```{r}
+c("Hi", "Low", "Low", "Medium") %in% c("Medium", "High")
+```
+
+```{r lastex, exercise = TRUE}
+
+```
+
+```{r lastex-solution}
+at_least_2 <- group_by(mpg, manufacturer) |> 
+  summarize(per_class = n_distinct(class)) |>
+  filter(per_class > 1)
+
+at_least_2
+
+filter(mpg, manufacturer %in% at_least_2$manufacturer) |>
+  mutate(cty_z = scale(cty)) |>
+  group_by(manufacturer) |>
+  summarize(v = var(cty_z)) |>
+  arrange(v)
+```
+
+## `rdind` and `cbind`
+
+Take a sequence of vector, matrix or data-frame arguments and combine by rows you use `rbind`
+And to combine them by columns you use `cbind`
+
+```{r}
+t1 <- tibble(x = 1, y = 2)
+t1
+t2 <- tibble(x = 2, y = 4)
+t2
+t <- rbind(t1, t2)
+t
+cbind(t, new_col = c('a', 'b'))
+```
+
+## Applying functions with `across`
+
+You can define your own functions and use that function to apply to specific columns using `across`
+
+Let us say you want to count the length of the string in every character column of the dataframe and create a new column with the string length value. You could do so as shown below:
+
+```{r}
+get_length <- function(x){
+  str_length(x)
+}
+
+storms |> mutate(across(where(is.character), get_length, .names = 'length_{col}')) |> head(3)
+```
+
+
+
+
+

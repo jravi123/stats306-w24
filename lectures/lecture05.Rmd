@@ -286,6 +286,9 @@ d <- data.frame(x = c(-0.19, 1.35, 1.21, -0.11, -0.99,
                       -0.4, -0.04, -0.4, 0.82, -1.55))
 d |> mutate(x = if_else(x > 1, 1, x),
             x = if_else(x < -1, -1, x)) |> head(10)
+
+# alternatively
+d |> mutate(x = if_else(x > 1, 1, if_else(x < -1, -1, x))) |> head(10)
 ```
 
 ## `transmute`: `mutate` + `select`
