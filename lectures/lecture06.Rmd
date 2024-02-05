@@ -44,6 +44,7 @@ aatemp
 ```{r}
 aatemp_cel <- mutate(aatemp, TMAX_celsius = (TMAX - 32) * 5/9) |>
   select(TMAX, TMAX_celsius)
+aatemp_cel |> head()
 ```
 
 ## Grouping by year
@@ -136,7 +137,7 @@ Let's put it all together using the `mpg` data set.
 
 >* Get a list of manufacturers that produce cars in at least 2 different classes. (Recall `n_distinct` function)
 >* Using that list, subset the `mpg` data to just those manufactures
->* Rescale the highway efficiency variable into Z-scores (using the common mean across all manufacturers)
+>* Rescale the `cty` efficiency variable into Z-scores (using the common mean across all manufacturers)
 >* Group the observations by manufacturer. Which one has the smallest variance in `cty` efficiency?
 
 You may want to use `%in%`:
@@ -188,7 +189,10 @@ get_length <- function(x){
   str_length(x)
 }
 
-storms |> mutate(across(where(is.character), get_length, .names = 'length_{col}')) |> head(3)
+storms |> mutate(across(where(is.character), 
+                        get_length, 
+                        .names = 'length_{col}')) |> 
+  head(3)
 ```
 
 

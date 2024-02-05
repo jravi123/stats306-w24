@@ -453,3 +453,9 @@ Group by both `manufacturer` and `class`. What manufacturer has the highest `cty
 mpg |> group_by(manufacturer, class) |> summarize(mean_cty = mean(cty)) |> summarise(median_cty = median(mean_cty)) |> arrange(desc(median_cty))
 ```
 
+## HW
+
+*  add layer; `theme(legend.position="bottom")` 
+*  2nd e eBook: Coordinate Systems.9.7
+* {r fig.height = 10}
+* longitude - explain your selection with a meaningful plot
