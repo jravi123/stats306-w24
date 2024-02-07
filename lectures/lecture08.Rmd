@@ -75,7 +75,7 @@ lookupPlayer(c("aaronha01", "ruthba01")) |> select(nameFirst, nameLast)
 Another way of slicing the top `n` values of any count is using `slice_max`
 
 ```{r}
-mpg |> group_by(manufacturer) |> summarize(n = n()) |> slice_max(n = 3, n)
+Batting |> group_by(playerID) |> summarize(n = n()) |> slice_max(n = 3, n)
 ```
 
 A few other variations are `slice_min`, `slice_sample`, etc. 
@@ -91,7 +91,7 @@ grouped_mean <- function(df, group_var, mean_var) {
     summarize(mean(mean_var))
 }
 
-grouped_mean(mpg, model, hwy)
+grouped_mean(Batting, playerID, HR)
 ```
 
 Fix with embracing `{{ }}`
@@ -103,14 +103,14 @@ grouped_mean <- function(df, group_var, mean_var) {
     summarize(mean({{ mean_var }}))
 }
 
-grouped_mean(mpg, model, hwy) |> head()
+grouped_mean(Batting, playerID, HR) |> head()
 ```
 
 
 
 ## Successful players (batting)
 
-Which players had the most home runs? Games played? Stolen bases?
+Which players had the most home runs? Games played? At bats?
 
 ```{r}
 top_players <- function(stat, type) {
