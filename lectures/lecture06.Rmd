@@ -163,7 +163,7 @@ filter(mpg, manufacturer %in% at_least_2$manufacturer) |>
   arrange(v)
 ```
 
-## `rdind` and `cbind`
+## `rbind` and `cbind`
 
 Take a sequence of vector, matrix or data-frame arguments and combine by rows you use `rbind`
 And to combine them by columns you use `cbind`

@@ -1,6 +1,6 @@
 ---
 title: "Stats 306: Lecture 7"
-subtitle: "Nore on User Defined Functions"
+subtitle: "More on User Defined Functions"
 author: "Jayashree Ravi"
 citation: "Content adapted from slides by Dr. Mark Fredrickson"
 output: 
@@ -117,12 +117,15 @@ mutate(aatemp, TMAX_myscale = myscale(TMAX)) |>
     geom_violin()
 ```
 
+
 ```{r}
-aat_year <- group_by(aatemp, year(DATE))
-summarize(aat_year, myscale(TMAX)) |>
-  ggplot(aes(x = factor(`year(DATE)`), y = `myscale(TMAX)`)) +
+aatemp |> group_by(year(DATE)) |>
+  mutate(TMAX_scaled = myscale(TMAX)) |>
+  ggplot(aes(x = factor(year(DATE)), y = TMAX_scaled))+
     geom_violin()
 ```
+
+
 
 ## Exericse: Converting all Fahrenheit to Celsius
 
@@ -200,7 +203,7 @@ mutate(aatemp, across(c("TMAX", "TMIN"),
 $$ \frac{(1/n) \sum_{i=1}^n (X_i - \bar X_n)^3}{\hat \sigma^3}$$
 where $\hat \sigma$ is the sample standard deviation.
 
-Write a function to compute the coefficient of skew and use `summarize_at` to compute it for `TMAX` and `TMIN` in the `aatemp` data set.
+Write a function to compute the coefficient of skew and use `across` to compute it for `TMAX` and `TMIN` in the `aatemp` data set.
 
 ```{r coefskew, exercise = TRUE}
 
@@ -245,7 +248,7 @@ aat_year <- group_by(aatemp, year(DATE))
 summarize(aat_year, mean_var(TMAX))
 ```
 
-Use caution when using this function more than once!
+Use caution when using this function more than once! Now what are these values we got??
 
 ```{r}
 summarize(aat_year, mean_var(TMAX), mean_var(TMIN))
@@ -290,7 +293,13 @@ select(aatemp, where(~ !any(is.na(.x)))) |> ncol()
 ```
 
 >* `~` starts a formula
->* `.x` and `.y` are the arguments to the function
+>* `.x` is the argument to the function
+
+Another form using backslash
+
+```{r}
+select(aatemp, where(\(x) !any(is.na(x)))) |> ncol()
+```
 
 We'll see more of this form when we discuss iteration.
 
@@ -322,11 +331,11 @@ mutate(aatemp, TMAX1 = multSomething(TMAX),
 ## Some functions allow passing additional arguments indirectly
 
 ```{r}
-mutate(aatemp, across(c("TMAX", "TMIN"), multSomething, to_mult = 0)) |>
+mutate(aatemp, across(c("TMAX", "TMIN"), \(x) multSomething(x, to_mult = 0))) |>
   select(TMAX, TMIN)
 ```
 
-This is done using the `...` argument to `across`.
+
 
 ## Exercise
 

@@ -1,0 +1,327 @@
+---
+title: "Stats 306: Lecture 8"
+subtitle: "Wrapping up functions"
+author: "Jayashree Ravi"
+citation: "Content adapted from slides by Dr. Mark Fredrickson"
+output: 
+  learnr::tutorial:
+    progressive: true
+    css: css/lecture.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(lubridate) # install.packages("lubridate") if you don't have this
+library(Lahman) # install.packages("Lahman") if you don't have this
+```
+
+## Review
+
+* From duplicated to clean code:
+  * Common patterns in function
+  * Use of `across`
+  * Lists of functions as arguments
+* Return values: only one but can package up in vectors, lists, and tables
+* Predicates: functions that return `TRUE` or `FALSE`; use in `select`
+* Anonymous functions, tidyverse short hand notation `~ (.x - mean(.x))^2 / (length(.x) - 1)`
+
+## The `Lahman` package
+
+Sean Lahman maintains an extremely [detailed database of American baseball
+statistics](https://www.seanlahman.com/baseball-archive/statistics). The
+`Lahman` package conveniently imports this data for us.
+
+```{r}
+library(Lahman)
+glimpse(Batting)
+dim(Batting)
+colnames(Batting)
+```
+
+We can look up the description of the columns using `?Batting` or the help menu.
+
+## Getting in the Lahman data
+
+```{r}
+Batting$yearID |> range()
+group_by(Batting, playerID) |> 
+    summarize(across(c("G", "HR", "RBI"), sum)) |>
+    arrange(desc(HR)) |> head(5)
+```
+
+## From IDs to full names
+
+The `People` table has a `playerID` column. Does this uniquely identify players?
+
+```{r}
+dim(People)
+summarize(People, n_distinct(playerID))
+```
+
+Looking up players: 
+```{r}
+lookupPlayer <- function(pid) {
+  filter(People, playerID %in% pid) # result will be a table
+}
+
+lookupPlayer(c("aaronha01", "ruthba01")) |> select(nameFirst, nameLast)
+```
+
+## `slice_max` function
+
+Another way of slicing the top `n` values of any count is using `slice_max`
+
+```{r}
+mpg |> group_by(manufacturer) |> summarize(n = n()) |> slice_max(n = 3, n)
+```
+
+A few other variations are `slice_min`, `slice_sample`, etc. 
+
+## Dataframe function caveats
+
+A case of a problem of indirection, as dplyr uses tidy evaluation to allow you to refer to the names of variables inside your data frame without any special treatment.
+
+```{r embracing, exercise = T}
+grouped_mean <- function(df, group_var, mean_var) {
+  df %>%
+    group_by(group_var) %>%
+    summarize(mean(mean_var))
+}
+
+grouped_mean(mpg, model, hwy)
+```
+
+Fix with embracing `{{ }}`
+
+```{r}
+grouped_mean <- function(df, group_var, mean_var) {
+  df |>
+    group_by({{ group_var }}) |>
+    summarize(mean({{ mean_var }}))
+}
+
+grouped_mean(mpg, model, hwy) |> head()
+```
+
+
+
+## Successful players (batting)
+
+Which players had the most home runs? Games played? Stolen bases?
+
+```{r}
+top_players <- function(stat, type) {
+  Batting |> group_by(playerID) |> 
+    summarize(total = sum({{ stat }})) |> 
+    slice_max(n = 1, total) |> 
+    mutate(lookupPlayer(playerID)) |> 
+    select(playerID, total, nameFirst, nameLast) |>
+    mutate(type = type)
+} 
+
+# rbind stacks tables
+rbind(
+ top_players(HR, "Homeruns"),
+  top_players(G, "Games"),
+  top_players(AB, "At Bats"))
+
+```
+
+
+
+
+## Variable number of arguments
+
+Recall our template for creating a function in R:
+
+```{r, eval = FALSE}
+fname <- function(required_arg, optiona_arg = 123, ...) {
+  # function body
+}
+```
+
+The `...` means "any number of additional arguments"
+
+## Example of variable arguments
+
+```{r}
+sum_summary <- function(...) {
+  select(...) |> summarize_all(sum)
+}
+
+sum_summary(Batting, HR, G, SB)
+```
+
+Notice how all three arguments get passed to `select` automatically.
+
+
+## Exercise
+
+The `paste` function will take more than one item to turn into a string using its `...` argument:
+
+```{r}
+paste("Welcome", "to", "Stats206", "and", "DataSci101")
+```
+
+Write a function that takes a `...` argument and passes it along to `paste`. Set the `sep = "+"` when calling `paste`.
+
+```{r exdots, exercise = TRUE}
+
+
+## plus_paste("Welcome", "to", "Stats306", "and", "R Programming")
+```
+
+## Common use of `...`: passing optional arguments to called functions
+
+We have seen `na.rm = TRUE` pop up from time to time.
+
+```{r}
+d <- tibble(x = c(1, 10, NA, 7), y = c(1000, 2000, 10000, NA))
+d
+```
+
+What happens if we try to summarize using `mean`?
+
+```{r}
+summarize_all(d, mean)
+```
+`summarize` uses `...` to pass additional arguments to the summarizing functions.
+
+```{r}
+summarize_all(d, mean, na.rm = TRUE)
+```
+## Fixing a previous function
+
+```{r}
+sum_summary <- function(...) {
+  select(...) |> summarize_all(sum, na.rm = TRUE)
+}
+
+sum_summary(Batting, HR, G, SB)
+```
+
+## Conditional evaluation, short circuiting
+
+We have used `if_else` to make choices for an entire vector. We often need **conditional program flow** in functions.
+
+```{r}
+my_median <- function(x) {
+  x_sorted <- sort(x)
+  n <- length(x)
+  if (n %% 2 == 1) {
+    ## odd numer of observations
+    return(x_sorted[(n + 1)/2])
+  } else {
+    return(mean(x_sorted[c(n/2, n/2 + 1)]))
+  }
+  
+  return(Inf) # this line will never run
+}
+
+values_even <- c(19, 2, 4, 11)
+values_odd  <- c(19, 2, 4, 11, 9)
+
+my_median(values_even)
+my_median(values_odd)
+```
+
+## Careful about what you put in your `if` statements:
+
+```{r eval = FALSE}
+
+if (values_even > 3) {
+  ... you may be trying to see if all values are larger than 3 ...
+}
+```
+Would give the error message:
+```
+Error in if (values > 3) { : the condition has length > 1
+```
+
+Solution: use the `any` and `all` functions
+
+
+## Combining more than one condition
+
+We can use `&` for "and" and `|` for "or". We can use `!` to negate.
+
+Here's an example where we can only set one option for a function:
+
+```{r}
+food_order <- function(entree, side = NULL, dessert = NULL) {
+  if (!is.null(side) & !is.null(dessert)) {
+    return("You may only order one side or dessert")
+  } 
+  
+  extra <- 
+    if (!is.null(side)) {
+      paste("with a side of", side)
+    } else if (!is.null(dessert)) {
+      paste("with a dessert of", dessert)
+    } else {
+      # both NULL <=> nothing extra ordered
+      "with no other items"
+    }
+
+  paste("You ordered a main dish of", entree, extra)
+ 
+}
+
+food_order("soup")
+food_order("soup", side = "salad")
+food_order("soup", dessert = "cake")
+food_order("soup", "salad", "cake")
+```
+
+## Environments and functions
+
+An **environment** in R is all defined variables and their values (we can think of it like a list). 
+
+You have a **global** environment for your R session, and R packages and functions have their own environments.
+
+```{r}
+x <- 3
+f <- function(y) {
+  x <- 2
+  y + x
+}
+f(2)
+
+```
+
+## Lexical scoping
+
+Environments are **nested**. If we request a variable not in the current environment, we go up the chain. We call this lexical scoping.
+
+```{r}
+
+x <- 3
+f <- function(y) {
+  y + x
+}
+f(2)
+```
+
+
+
+## Exercise
+
+Which columns contain a value greater than 100?
+
+To find out, first, select only non-factor columns (`is.factor` will be helpful), then select the columns that have a value of at least 100 somewhere in column. Use `colnames()` to list the column names.
+
+Then find the opposite. What columns do not have values greater than 100? Has anyone ever been hit by pitches more than 100 times in a season (column HBP)
+
+```{r selectexercise, exercise = TRUE}
+
+```
+
+```{r selectexercise-solution}
+select(Batting, where(~ !is.factor(.x))) |> select(where(~ max(.x, na.rm = TRUE) > 100)) |> colnames()
+
+select(Batting, where(~ !is.factor(.x))) |> select(where(~ max(.x, na.rm = TRUE) <= 100)) |> colnames()
+
+```
