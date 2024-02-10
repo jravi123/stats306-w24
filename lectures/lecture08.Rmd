@@ -311,17 +311,17 @@ f(2)
 
 Which columns contain a value greater than 100?
 
-To find out, first, select only non-factor columns (`is.factor` will be helpful), then select the columns that have a value of at least 100 somewhere in column. Use `colnames()` to list the column names.
+To find out, first, select only numeric columns (`is.numeric` will be helpful), then select the columns that have a value of at least 100 somewhere in column. Use `colnames()` to list the column names.
 
-Then find the opposite. What columns do not have values greater than 100? Has anyone ever been hit by pitches more than 100 times in a season (column HBP)
+Then find the opposite. What columns do not have values greater than 100? 
 
 ```{r selectexercise, exercise = TRUE}
 
 ```
 
 ```{r selectexercise-solution}
-select(Batting, where(~ !is.factor(.x))) |> select(where(~ max(.x, na.rm = TRUE) > 100)) |> colnames()
+select(Batting, where(\(x) is.numeric(x))) |> select(where(\(x) max(x, na.rm = TRUE) >= 100)) |> colnames()
 
-select(Batting, where(~ !is.factor(.x))) |> select(where(~ max(.x, na.rm = TRUE) <= 100)) |> colnames()
+select(Batting, where(~ is.numeric(.x))) |> select(where(~ max(.x, na.rm = TRUE) < 100)) |> colnames()
 
 ```

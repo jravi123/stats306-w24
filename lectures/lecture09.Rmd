@@ -1,0 +1,297 @@
+---
+title: "Stats 306: Lecture 9"
+subtitle: "Exploratory Data Analysis"
+author: "Mark Fredrickson"
+output:
+  learnr::tutorial:
+    progressive: true
+    css: css/lecture.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(lubridate) # install.packages("lubridate") if you don't have this
+library(Lahman) # install.packages("Lahman") if you don't have this
+```
+
+
+
+
+
+
+## Statistics and Data Science Workflow
+
+<img src = 'images/r4ds-whole-game.png' width = 100% height = auto />
+
+## Exploratory Data Analysis
+
+It is an **informal**,  **data driven** process of asking and answering questions on data.
+
+Procedures for analyzing data, techniques for interpreting the results of such procedures, ways of planning the gathering of data to make its analysis easier, more precise or more accurate, and all the machinery and results of (mathematical) statistics which apply to analyzing data.
+
+Typical steps:
+
+1. Generate questions about your data.
+2. Search for answers by visualizing, transforming, and modelling your data.
+3. Use what you learn to refine your questions and/or generate new questions.
+(Return to #1).
+
+## EDA vs. Inference
+
+EDA is about looking at a particular data set.
+
+**Inference** is about making informed guesses about data we **do not* observe.
+
+Inference includes **estimating**, **testing hypotheses** or **performing prediction** with the aid of a statistical model.
+
+EDA helps generate questions we can answer more forcefully with inference.
+
+## Asking Questions and finding Answers
+
+* EDA is about finding out what questions to ask. This is harder than it sounds.
+* Quantity over quality (at least at the start)
+
+Two types of questions are always useful for making discoveries within your data:
+
+* What type of variation occurs within my variables?
+* What type of covariation occurs between my variables?
+
+
+## John Tukey, father of EDA
+
+<center>
+
+![John Tukey](images/John_Tukey.jpg)
+
+</center>
+
+
+>* The best thing about being a statistician is that you get to play in everyone's backyard.
+>* The first task of the analyst of data is quantitative detective
+work.
+>* Far better an approximate answer to the right question, which is often vague, than an exact answer to the wrong question, which can always be made precise.
+
+
+
+“The greatest value of a picture is when it forces us to notice what we never expected to see.” — John Tukey
+
+## Distributions and Variation
+
+* If all our observations had the same value, we could perfectly describe our data set with a single number (or category).
+* Usually, observations differ in their values, exhibiting **variation**
+* One of the primary tasks of EDA is to describe and quantify the variation
+* The **distribution** of a measurement is the set of all possible values and their frequencies in the data set.
+* Might look at **summaries** of the distribution to understand variation.
+* Start by focusing on single measurements (**marginal distributions**), talk about **joint distributions** later
+  
+## Reminder: types of data
+
+We often describe a measurement as being one of two classes:
+
+>* Categorical: taking one of a fixed set of classes/categories; Ordinal (some ordering in categories seen) or Nominal (no ordering) or Binary (only two values; yes/no, T/F etc.)
+>* Quantitative (continuous): taking numeric values, possibly infinitely many
+
+## Distributions of Categorical
+
+When observations fall into a set number of possible values, the distribution can be described with a table:
+
+```{r}
+group_by(mpg, manufacturer) |> summarize(n())
+```
+or using this shortcut:
+```{r}
+count(mpg, manufacturer)
+```
+
+## Proportions instead of counts
+
+It is often useful to work on the proportions scale, as this communicates what share of the data set is contained in each level of the categorical value.
+
+$$\frac{\text{number in group}}{\text{size of data set}}$$
+
+```{r}
+group_by(mpg, manufacturer) |>
+  summarize(n = n()) |>
+  mutate(n / sum(n))
+```
+
+## Exercise
+
+For each manufacturer, find the proportion of each distinct class and show the proportions using a suitable chart
+
+```{r prop-field, exercise = TRUE}
+
+```
+
+```{r prop-field-solution}
+mpg |> group_by(manufacturer, class) |> 
+  summarize(n = n()) |> 
+  mutate(prop = n / sum(n)) |> 
+  ggplot(aes(x = manufacturer, y = prop, fill = class)) + 
+  geom_col() + coord_flip()
+```
+
+
+## Relative frequency plot 
+
+We can get the same plot with less code using `position = 'fill'` for geom_bar
+
+```{r}
+mpg |> ggplot(aes(x = manufacturer, fill = class)) + 
+  geom_bar(position = 'fill')
+```
+
+## Marginal distributions for quantitative/ordinal
+
+When we have observations that take on numeric values, or at least can be ordered, it doesn't make sense to report counts of unique values.
+
+```{r}
+summarize(People, n_distinct(weight))
+```
+
+but we can describe the **empirical cumulative distribution function**.
+
+$$\hat F(x) = \frac{\text{number of values no larger than x}}{\text{total data set size}}$$
+
+## Proportions and means
+
+When we are calculating a proportion, what are we doing?
+
+>* Finding all the units that match some condition
+>* Dividing by the sample size
+
+Suppose we wanted the proportion of players weighing less than 200 lbs:
+
+```{r}
+People_clean <- filter(People, !is.na(weight))
+filter(People_clean, weight <= 200) %>% nrow() / nrow(People_clean)
+```
+
+What is `weight <= 200`?
+
+```{r}
+summarize(People_clean, class(weight <= 200))
+```
+
+R treats `TRUE` like 1 and `FALSE` like 0 so:
+```{r}
+summarize(People_clean, sum(weight <= 200)) / nrow(People_clean)
+```
+
+But what is a sum divided by the size of the data? The mean of the condition!
+
+```{r}
+summarize(People_clean, mean(weight <= 200))
+```
+
+
+
+## Computing the ECDF 
+
+What percentage of players have a weight no more than 200 pounds?
+
+```{r}
+summarize(People_clean, mean(weight <= 200))
+```
+
+What percentage have a weight no more than 250 pounds?
+```{r}
+summarize(People_clean, mean(weight <= 250))
+```
+
+## Exercise
+
+What is the proportion of players that have made more than 100 errors? 
+
+```{r errors-exercise, exercise = TRUE}
+# group_by(Fielding, playerID) |> summarize(E = sum(E))
+```
+
+```{r errors-exercise-solution}
+group_by(Fielding, playerID) |> 
+  summarize(E = sum(E)) |> 
+  summarize(mean(E > 100, na.rm = T))
+```
+
+How would you write this quantity in terms of the ECDF?
+
+## Plotting the ECDF
+
+```{r}
+ggplot(People, aes(x = weight)) + stat_ecdf() + ylab("Proportion less than x")
+```
+
+## What proportion between two values?
+
+We could also ask questions like, what proportion between 200 and 250 pounds?
+
+```{r}
+summarize(People_clean, mean(weight > 200 & weight <= 250))
+```
+
+Notice that we could also use the ECDF to answer this:
+
+$$\frac{\text{between 200 and 250}}{\text{total players}} = \frac{\text{less than/eq 250} - \text{less than/eq 200}}{\text{total players}} = \hat F(250) - \hat F(200)$$
+
+```{r}
+summarize(People_clean, mean(weight <= 250) - mean(weight <= 200))
+```
+
+## Showing visually
+```{r}
+ggplot(People_clean, aes(x = weight)) + stat_ecdf() + ylab("Proportion less than x") +
+  annotate("rect", xmin = 200, xmax = 250, 
+           ymin = mean(People_clean$weight <= 200), 
+           ymax = mean(People_clean$weight <= 250),
+  alpha = .5)
+```
+
+## More than one box
+
+```{r}
+Fhat <- function(w) { mean(People_clean$weight <= w) }
+
+g <- ggplot(People_clean, aes(x = weight)) + stat_ecdf() + ylab("Proportion less than x")
+k <- 10
+b <- seq(min(People_clean$weight), max(People_clean$weight), length.out = k)
+for (i in 2:k) {
+  g <- g + annotate("rect", xmin = b[i - 1], xmax = b[i],
+                    ymin = Fhat(b[i - 1]), ymax = Fhat(b[i]),
+                    alpha = 0.5)
+}
+print(g)
+```
+
+## Exercise
+
+Create an ECDF of the number of errors made for **players making fewer than 100 errors**
+```{r ecdfplot-exercise, exercise = TRUE}
+# group_by(Fielding, playerID) |> summarize(E = sum(E))
+```
+
+```{r ecdfplot-exercise-solution}
+group_by(Fielding, playerID) |> summarize(E = sum(E)) |> 
+  filter(E < 100) |> 
+  ggplot(aes(x = E)) + 
+  stat_ecdf() + labs(y = 'ECDF of players less than 100 errors')
+```
+
+
+What's the largest number of errors that 75% of players have made fewer errors than that number?
+
+Why must the point (100, 1.0) be on the line of the ECDF?
+
+
+## From ECDF to histogram
+
+```{r}
+ggplot(People_clean, aes(x = weight)) + 
+  geom_histogram(bins = 9, aes(y = after_stat(count / sum(count))))
+```
+
+## Continue
+
+>* R for Data Science (2e): 10 - 11
