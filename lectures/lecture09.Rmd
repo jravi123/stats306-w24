@@ -1,7 +1,8 @@
 ---
 title: "Stats 306: Lecture 9"
 subtitle: "Exploratory Data Analysis"
-author: "Mark Fredrickson"
+author: "Jayashree Ravi"
+citation: "Content adapted from slides by Dr. Mark Fredrickson"
 output:
   learnr::tutorial:
     progressive: true
@@ -16,8 +17,6 @@ library(tidyverse)
 library(lubridate) # install.packages("lubridate") if you don't have this
 library(Lahman) # install.packages("Lahman") if you don't have this
 ```
-
-
 
 
 
