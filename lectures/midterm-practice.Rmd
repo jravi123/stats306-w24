@@ -1,0 +1,145 @@
+---
+title: "Midterm practice"
+author: "Jayashree Ravi"
+output:
+  learnr::tutorial:
+    progressive: true
+    css: css/lecture.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(lubridate) # install.packages("lubridate") if you don't have this
+library(nycflights13) # install.packages("Lahman") if you don't have this
+```
+
+
+## Question
+
+In the below diagram, I would like to have every unique value of the cylinder (cyl) to have a different color.  Why is the color shown in a blue gradient currently? How will you fix the code to get different colors for each distinct cyl value? 
+
+```{r q1, exercise = TRUE}
+mpg |> ggplot() + geom_point(aes(x = displ, y = hwy, color = cyl))
+```
+
+```{r q1-solution}
+mpg |> ggplot() + geom_point(aes(x = displ, y = hwy, color = as.factor(cyl)))
+```
+
+
+## Question
+What is the output of the below expression?
+
+```{r q2, exercise = T}
+sum(c(4, 5, NA))
+```
+
+## Question
+
+Write a statement that displays only those columns that start with the letter'm' in the 'mpg' dataset
+
+```{r q3, exercise = T}
+
+```
+
+## Question
+
+```{r}
+storms |> glimpse()
+```
+
+You see the glimpse of the storms dataset as shown above.
+
+For a given year a storm name is unique. However, we see more than 1 record for a given storm name for a given year.  This is because the same storm details are recorded every 6 hours till it dies.  What changes every 6 hours is its location, status, and other pertinent parameters and they are tabulated again thereby making more than 1 entry for a given name for a given year.
+
+Write the R code to get a chart as given below that only counts the total number of unique storm names across each year.
+
+```{r, echo=FALSE}
+storms |> count(year, name) |> count(year) |> ggplot(aes(x = year, y = n)) + geom_line(color = 'orange')
+```
+
+Enter your code as your solution
+
+```{r q4, exercise = TRUE}
+
+```
+
+```{r q4-solution}
+storms |> count(year, name) |> count(year) |> ggplot(aes(x = year, y = n)) + geom_line(color = 'orange')
+```
+
+## Question
+
+Using the `nycflights13` database, find the top 5 destinations (dest) in this dataset and show the airline carrier (carrier) distribution for these top 5 destinations using a suitable chart.  You should write your code as your solution.
+
+```{r q5, exercise = TRUE}
+
+```
+
+```{r q5-solution}
+top_5 <- flights |> count(dest) |> slice_max(n = 5, n)
+
+flights |> filter(dest %in% top_5$dest) |> ggplot(aes(x = dest)) + geom_bar(aes(fill = carrier))
+```
+
+## Question
+
+Explain the concept of embracing a variable in the context of function calls
+
+```{r q6, exercise = TRUE}
+
+```
+
+
+```{r q6-solution}
+
+get_top_5 <- function(df, col){
+  df |> count({{ col }}) |> slice_max(n = 5, n)
+}
+
+get_top_5(flights, dest)
+
+```
+
+## Question
+
+Give an example of a predicate function by writing a predicate function and using it in your select statement
+
+```{r q7, exercise = TRUE}
+
+```
+
+```{r q7-solution}
+has_20_or_more <- function(x){ is.numeric(x) & any(x > 20)}
+mpg |> select(where(has_20_or_more))
+```
+
+## Question
+Write a query to get all records in 'mpg' dataset that have hwy value greater than 30 and cty value greater than 25
+
+```{r q8, exercise = TRUE}
+
+```
+
+```{r q8-solution}
+mpg |> filter(cty > 25, hwy > 30)
+```
+
+## Question
+
+Which carrier flies to the most number of destinations? Who is that carrier and how many destinations do they cover? Write a query to solution your question
+
+```{r q9, exercise = TRUE}
+
+```
+
+```{r q9-solution}
+
+flights |> group_by(carrier) |> summarize(dest_distinct = length(unique(dest))) |> 
+     slice_max(n = 1, dest_distinct)
+```
+
+
