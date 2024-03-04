@@ -1,0 +1,127 @@
+---
+title: "Stats 306: Lecture 11"
+subtitle: "Wrapping up EDA, Wrangling"
+output:
+  learnr::tutorial:
+    progressive: true
+    css: css/lecture.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(lubridate) # install.packages("lubridate") if you don't have this
+
+```
+
+
+## Review
+
+* Continued our formalization of EDA:
+  * What kind of variation for the measurements in in my sample?
+  * What kinds of covariation among measurements (relationships)?
+* ECDFs, histograms, density plots
+* Importance of bin width (histogram) and bandwidth (density)
+* Plots: typical values, clusters (how many, narrow/wide), where is variation?
+* Missing data (`NA`): dropping, imputing, modeling
+* Covariation
+
+## Diamond data
+
+```{r}
+diamonds |> head()
+```
+
+```{r}
+diamonds |> glimpse()
+```
+
+## Histogram
+
+```{r}
+diamonds |> ggplot(aes(x = price)) + geom_histogram()
+```
+
+## Histrogram for all numerical values
+
+```{r}
+diamonds |>
+  select(where(is.numeric)) |>
+  gather() |>
+  ggplot(aes(x = value, fill = key)) +
+  geom_histogram(binwidth = 0.5, position = "identity", alpha = 0.7) +
+  facet_wrap(~key, scales = "free") +
+  labs(title = "Histograms of Numerical Variables",
+       x = "Value",
+       y = "Frequency",
+       fill = "Variable") 
+```
+
+
+```{r}
+diamonds |>
+  select(where(is.numeric)) |>
+  gather()
+```
+
+##  Conditional Distribution
+
+```{r}
+diamonds |> ggplot(aes(x = cut, y = price)) + geom_violin()
+```
+
+## Two Quantitative Joint Distribution
+
+
+```{r}
+diamonds |> ggplot( aes(x = carat, y = price, color = cut)) +
+    geom_point(alpha = 0.5) + 
+    labs(title = 'Joint Distribution of Quantitative Variables',
+         x = "Carat",
+         y = "Price")
+```
+
+## Locally weighted least squares (loess) 
+
+```{r}
+diamonds |> ggplot( aes(x = carat, y = price)) +
+    geom_point(alpha = 0.5) + stat_smooth() +
+    labs(title = 'Joint Distribution with Smooth curve',
+         x = "Carat",
+         y = "Price")
+```
+Stratify by cut
+
+```{r}
+diamonds |> ggplot( aes(x = carat, y = price, color = cut)) +
+    geom_point(alpha = 0.5) + stat_smooth() +
+    labs(title = 'Joint Distribution with Stratification',
+         x = "Carat",
+         y = "Price")
+```
+
+
+## Pair plot
+
+```{r}
+diamonds |>
+  select(where(is.numeric)) |>
+  pairs(col = diamonds$cut)
+```
+
+## Exercise - Titanic dataset
+
+Use the titanic data provided below and perform EDA.
+
+```{r}
+install.packages("titanic")
+library(titanic)
+titanic_train |> head()
+```
+
+
+## Next time
+
+>* R for Data Science: 7/17
