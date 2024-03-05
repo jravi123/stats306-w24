@@ -3,8 +3,8 @@ title: "Stats 306: Lab 6"
 subtitle: "Exploratory Data Analysis"
 author: "Your Name"
 output: 
-  slidy_presentation:
-    incremental: true
+  learnr::tutorial:
+    progressive: true
 runtime: shiny_prerendered
 ---
 
@@ -132,31 +132,6 @@ Explore the distribution of `price` in the `diamonds` data frame. What's unusual
 
 ```
 
-## Solution 
-
-This is how the histogram with the bin defaults looks:
-```{r}
-diamonds %>%
-  ggplot(aes(price)) +
-  geom_histogram()
-```
-
-There's a bar to the left of $2000 that's unusually short
-```{r}
-diamonds %>%
-  ggplot(aes(price)) +
-  geom_histogram(binwidth = 100)
-```
-
-Zooming in on the plot over the range $0 to $2000, the unusually short bar
-appears to be at $1500.
-```{r}
-diamonds %>%
-  ggplot(aes(price)) +
-  geom_histogram(binwidth = 100) +
-  coord_cartesian(xlim = c(0, 2000))
-```
-
 ## Missing Values
 
 > - Missing values are represented as `NA`'s
@@ -196,21 +171,10 @@ flights %>%
 
 What happens to missing values in a histogram and what happens to them in a barchart? Why is there a difference?
 
-## Solution
+```{r problem2, exercise = T}
 
-A barchart shows the distribution of a categorical variable. If the category is missing for an observation, then it can still be represented in the plot. An NA bar whose height reflects the number of observations with a missing value can be included.
-```{r}
-starwars %>%
-  group_by(species) %>%
-  filter(n() > 1) %>%
-  ggplot() +
-  geom_bar(mapping = aes(y = species))
 ```
 
-A histogram shows the distribution of a numerical variable. If the value is missing for an observation, then it can't be included. There's no way to tell which bin it should be included in since its value isn't known. By default, observations with a missing value are removed.
-```{r}
-ggplot(starwars, aes(height)) + geom_histogram()
-```
 
 ## Covariation
 
@@ -336,28 +300,6 @@ head(gapminder)
 ```
 
 
-## Solution
-
-There are two modes.
-
-```{r}
-gapminder %>%
-  filter(year == 2007) %>%
-  ggplot() +
-  geom_histogram(aes(x = gdpPercap, y = stat(density)), alpha = 0.3) +
-  geom_density(aes(x = gdpPercap), color = "darkorange", size = 2)
-```
-
-
-```{r}
-colnames(gp2007)
-ggplot(gp2007, aes(x = gdpPercap)) + geom_histogram() + facet_wrap(~ continent) 
-```
-```{r}
-mutate(gp2007, pop_grp = cut(pop, breaks = quantile(pop, c(0.25, 0.5, 0.75, 1)))) |>
-  ggplot(aes(y = gdpPercap, x = pop_grp)) + geom_boxplot()
-```
-
 ## Challenge 2
 
 The goal of this task is to use visualization to inspect the distribution of a continuous variable in the `gapminder` dataset. While this may look challenging, you are encouraged to follow the instructions to help complete the task.
@@ -375,38 +317,4 @@ We know that a distribution is positively skewed (skewed to the right) when the 
   
 ```{r challenge2, exercise = T}
 
-```
-
-## Solution
-
-```{r}
-##### tibble for the averages #####
-averages = gapminder %>% 
-               summarise(mean_gdppcap = mean(gdpPercap, na.rm = TRUE),
-                         median_gdppcap = median(gdpPercap, na.rm = TRUE)
-               )
-
-
-##### tibble for colors #####
-plt_colors = tibble(mean = "red",
-                    median = "dodgerblue")
-
-
-##### plot ######
-gapminder %>%
-  ggplot() +
-  geom_histogram(aes(x = gdpPercap, y = stat(density)), alpha = 0.3) +
-  geom_density(aes(x = gdpPercap), color = "darkorange", size = 2) +
-  ## adding mean and median marks; use the averages dataset
-  geom_vline(data = averages,
-             mapping = aes(xintercept = mean_gdppcap, color = "mean"),
-             linetype = "dashed",
-             size = 2) +
-  geom_vline(data = averages,
-             mapping = aes(xintercept = median_gdppcap, color = "median"),
-             linetype = "dashed", 
-             size = 2) +
-  ## make the color tibbles map to the specified colors in the geom_line aesthetics
-  scale_color_manual(values = plt_colors) +
-  theme_bw()
 ```
