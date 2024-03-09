@@ -1,0 +1,366 @@
+---
+subtitle: "Stats 306: Lecture 13"
+title: "Tidy Data"
+author: "Jayashree Ravi"
+output:
+  learnr::tutorial:
+    progressive: true
+    css: css/lecture.css
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(nycflights13)
+set.seed(2939394)
+
+```
+
+
+## "Tidy" data
+
+There are many different ways to represent data in a table, but some are better than others. We say that a data table is "tidy" if:
+
+>* Each row represents an observation.
+>* Each column represents a variable.
+>* Each value gets its own cell.
+>* Each different type of data set gets its own table.
+
+Data tables which are not tidy are called messy! 
+
+![tidy](images/tidy_data.png){#id .class width=50% height=50%}
+
+## Is this tidy?
+
+```{r}
+print(table1)
+```
+
+The above table shows TB cases documented by WHO in various countries. In the above data set, each column is a variable and every entry in a column has a single value. It also meets all the other requirements for qualifying as being tidy. Therefore this data set is tidy.
+
+
+## What about this table?
+Now let us take a look at the following data set obtained by merging the cases and population into the `type` variable.
+```{r}
+table2
+```
+
+In the type column, you have two variables: cases and population. For data to be tidy, each variable needs to be in each column. So this data is messy.
+
+This is also a `tall` table. Why is this called tall?
+
+How about the following table?
+
+```{r}
+table3
+```
+
+The above table is also messy, because the counts for cases and population is defined as a division in the variable rate. So this data is also messy.
+
+## Another example
+
+```{r}
+print(table4a) # cases in one tibble
+print(table4b) # population in another one
+```
+
+The above is a messy data, since the values in the variable year are now column names.
+
+## Recap
+
+Tidy data means
+
+>* each observation has its own row
+>* each variable has its own column
+>* each value has its own cell
+
+## Why we care about tidy data?
+The tools we have learned so far all live in the tidyverse. This means that each tool expects to receive tidy data as input, and, where necessary, returns tidy data as output. You can think of tidy data as a sort of contract that everything in tidyverse expects. This makes it possible to string many tidyverse commands together using the piple operator (%>% |>) without having to worry about whether they all work together.
+
+For instance, let us calculate rate of cases per 10000 people for the data in table1.
+
+```{r}
+mutate(table1, rate = cases / population * 10000) # rate of cases per 10000 people
+```
+
+How would we calculate the rate variable using table2?
+```{r}
+table2
+#  mutate(table2, rate=???)  not possible to use mutate
+```
+
+Summary commands like summarize and count also preserve tidy data:
+
+```{r}
+count(table1, year, wt = cases) # compute no. of cases for each year
+```
+
+ggplot also expects tidy data. What if we plot a table with a messy data?
+
+```{r}
+
+ggplot(table2, aes(x = year, y = count)) +
+    geom_line(aes(color = country)) +
+    geom_point(aes(shape = type)) +
+    scale_x_continuous(breaks = c(1999, 2000))
+```
+
+I am not sure what is going on in the above plot with a messy data.
+
+Remark: Extremely important to only use the functions we have learnt for tidy data.
+
+## Creating tidy data
+
+If the data is not already tidy, then we might need to do some work before we can use the tools in `dplyr`. The package `tidyr` inside tidyverse allows one to convert data into the tidy data.
+
+**Making data longer**
+
+One common problem in when a variable is spread across multiple columns and we need to gather those columns to create a new pair of variables. For example, consider table4a from above:
+
+```{r}
+table4a
+```
+
+Here there is a year variable which is spread across two columns. To become tidy, it should get its own year column. We want to make the data longer by taking the year columns and combining them into one column:
+
+![pivot longer](images/long-form.png){#id .class width=100%}
+
+The command to do this is called pivot_longer(). To use it, we need to tell R three things:
+
+>* which existing columns (`cols`) should have been the values of a variable?
+>* what is the name of the new variable (`names_to`) whose values currently appear as column names?
+>* what is the name of the new variable (`values_to`) whose values are currently spread over the many columns (shown in point 1 above) cell?
+
+(When using pivot_longer(), neither the names nor values column names currently exist in your data. They are "destination" columns in the new table.)
+
+Let's look at an abbreviated usage for [`pivot_longer`](https://tidyr.tidyverse.org/reference/pivot_longer.html):
+
+```{r, eval = FALSE}
+pivot_longer(
+  data,
+  cols,
+  names_to = "name",
+  values_to = "value",
+  ...
+)
+```
+
+>* `data`: a wide table
+>* `cols`: the columns we want to place into the `value` column, the colnames will then populate the `names` column
+>* `names_to` and `values_to` let you rename these columns if you wish
+
+
+## Example - Pivot_longer 
+
+```{r}
+pivot_longer(table4a, cols = c('1999', '2000'))
+```
+
+Notice how R chose default names "name" and "value" for the new columns it created. We can change those to be more informative using the options `names_to=` and `values_to=`:
+
+```{r}
+# pivot table4a with informative column names
+pivot_longer(
+            table4a, cols = c('1999', '2000'),
+            names_to = 'year',
+            values_to = 'tb_cases'
+)
+```
+
+## Abother example
+
+
+```{r}
+table4a # population
+```
+
+
+**Using `pivot_longer` to fix**
+
+```{r}
+population <- pivot_longer(table4b, c("1999", "2000"), values_to = "population", names_to = "year")
+population
+```
+
+
+
+## Setting type of `name` column
+
+In the previous we converted the years to strings. We probably want integers:
+
+Method 1:
+```{r}
+pivot_longer(table4a, c("1999", "2000"), values_to = "cases", names_to = "year") |>
+  mutate(year = as.integer(year))
+```
+
+Method 2:
+```{r}
+pivot_longer(table4a, c("1999", "2000"), values_to = "cases", names_to = "year",
+             names_transform = as.integer)
+```
+
+
+
+## Wider data
+
+Another type of problem is when an observation is scattered across multiple rows. Here we want to do the opposite of gather: we want to make the data wider by spreading these rows out into new columns. 
+
+![pivot wider](images/pivot-wider.png){#id .class width=100%}
+
+The command to do this is called pivot_wider. To use it we need to specify two things:
+
+>* which existing column has the variable names?
+>* which existing column has the values for those variables?
+
+## Going from tall tables to wide tables
+
+When we have tables with too many rows, we can use [`pivot_wider`](https://tidyr.tidyverse.org/reference/pivot_wider.html) to restore one observation per row.
+
+Abbreviated usage:
+```{r, eval = FALSE}
+pivot_wider(
+  data,
+  names_from = name,
+  values_from = value,
+  ...
+)
+```
+
+>* `data` is a tall table
+>* `names_from` is the `name` column of the tall table
+>* `values_from` is the `value` column of the tall table
+
+## Example
+
+Convert table2 to tidy format using pivot_wider().
+
+```{r}
+# make table2 wider by separating cases and population into different columns
+print(table2)
+
+pivot_wider(table2, names_from = 'type', values_from = 'count')
+```
+
+## Exercise
+
+Re-create the following table which shows monthly departures from the three NYC airports:
+
+```{r, echo=F}
+flights %>%
+  count(origin, month) %>%
+  pivot_wider(
+    names_from = 'month',
+    values_from = 'n'
+  )
+```
+
+```{r pw-2, exercise = TRUE}
+
+```
+
+```{r pw-2-solution}
+
+flights %>%
+  count(origin, month) %>%
+  pivot_wider(
+              names_from = 'month',
+              values_from = 'n'
+  )
+```
+
+## Making wide data using more than one column
+
+Consider the following simple table.
+
+```{r}
+grades <- tribble(
+    ~person, ~exam, ~q1, ~q2, ~q3,
+    "alice", "mt1", 1, 2, 3.5,
+    "alice", "mt2", .5, 2.5, 1.5,
+    "bob", "mt1", 0.0, 1.0, 1.5,
+    "bob", "mt2", 1.5, 2.5, 2.0
+)
+grades
+```
+
+Suppose we want to expand this into multiple columns q1_mt1, q2_mt2, and so on. How should we use pivot_wider()?
+
+```{r}
+# spread using multiple values
+grades %>%
+  pivot_wider(
+            names_from = exam,
+            values_from = c(q1, q2, q3)
+  )
+```
+
+## Why do we have tall/untidy?
+
+* Certain data sets just come that way
+* Sometimes useful for human readability
+* Space efficient for sparse data
+
+## Exercise: summarizing on tall data
+
+Recall our homework exercise to recreate R's built in `summary` function:
+
+```{r}
+summary(select(table1, cases, population))
+```
+
+Use `table2` to compute summaries per variable (just do mean, median, and max).
+
+```{r}
+table2
+```
+
+```{r summaryex, exercise = TRUE}
+
+```
+
+```{r summaryex-solution}
+group_by(table2, type) |> summarize_at("count", c(mean = mean, med = median, max = max))
+
+```
+
+
+## Recap Pivoting
+
+If want to go from wide to tall or from tall to wide, we need to **pivot** our table.
+
+* `pivot_longer`: takes a wide table and makes it tall
+* `pivot_wider`: takes a tall table and makes it wide
+
+
+## More involved example using pivot_longer
+
+```{r}
+bbwater <- read_csv("../data/BKB_WaterQualityData_2020084.csv")
+bbnumeric <- select(bbwater, where(is.numeric)) |> pivot_longer(everything())
+bbnumeric
+```
+
+## Keeping other identifying columns
+
+```{r}
+bigwater <- pivot_longer(bbwater, where(is.numeric)) |>
+  select(Site_Id, Read_Date, name, value)
+
+bigwater
+```
+
+## Using in a plot
+
+```{r}
+ggplot(bigwater, aes(x = Site_Id, y = value)) + geom_boxplot() +
+  facet_wrap(~ name, scales = "free")
+```
+
+
+
+
+
+
