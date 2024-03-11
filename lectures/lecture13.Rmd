@@ -169,11 +169,11 @@ pivot_longer(
 )
 ```
 
-## Abother example
+## Another example
 
 
 ```{r}
-table4a # population
+table4b # population
 ```
 
 
@@ -263,8 +263,8 @@ flights %>%
 
 ```{r pw-2-solution}
 
-flights %>%
-  count(origin, month) %>%
+flights |>
+  count(origin, month) |>
   pivot_wider(
               names_from = 'month',
               values_from = 'n'
