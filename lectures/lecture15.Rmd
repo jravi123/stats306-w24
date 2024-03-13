@@ -1,7 +1,8 @@
 ---
 subtitle: "Stats 306: Lecture 15"
-title: "Relational Data, Continued; Introduction to Strings"
-author: "Mark Fredrickson"
+title: "Relational Data, Continued"
+author: "Jayashree Ravi"
+citation: "Content adapted from slides by Dr. Mark Fredrickson"
 output: 
   learnr::tutorial:
     progressive: true
@@ -61,30 +62,14 @@ Use an inner join to find out how many domestic flights there were during the pe
 ```{r innerjoin, exercise = TRUE}
 
 ```
-
-
-## Multiple matches
-
-Recall that we limited ourseleves to 5 airport codes. Notice the number of rows in this join:
-
-```{r}
-right_join(left, right, by = c("dest" = "faa")) |> select(flight, dest, name)
+```{r innerjoin-solution}
+flights |> inner_join(airports, join_by(dest == faa)) |> nrow()
 ```
-
-If A's key matches more than one row in B, A gets duplicated that many times. (This is different than `mutate`.)
-
-Note, same behavior with a left join:
-
-```{r}
-# swapping order of table
-left_join(right, left, by = c("faa" = "dest")) |> select(flight, faa, name)
-```
-
 
 
 ## Matching multiple keys
 
-What would have happened if the `weather` table used the column name `airport` instead of `origin`? Since `airport` is not a column in `flights`:
+What would happen if the joining column `origin` is not included?
 
 ```{r}
 left_join(fiveam, weather, by = c("year", "month", "day", "hour")) |>
@@ -95,18 +80,9 @@ In a left join, if the same key matches multiple tables in the right, the row ge
 
 Lesson: Be careful with natural joins and compound keys.
 
-## Filtering joins
 
-A few times we used the fact that **outer joins** will result in tables with missing entries in order to count some feature.
-
-This pattern is common enough to generate two **filtering join** functions:
-
-- `semi_join(x, y)` keeps all observations in x that have a match in y.
-- `anti_join(x, y)` drops all observations in x that have a match in y.
-
-Big difference from mutating joins is that `y`'s columns are not included.
-
-## Example
+## Filtering Example
+Using semi-join:
 
 Suppose we want to find the top 10 destinations by number of flights:
 
@@ -138,12 +114,17 @@ semi_join(flights, top_dest) |>
 
 ## Exercise
 
-Find the set of flights that were delayed by more than one hour (`dep_delay > 60`). Find the weather patterns associated with those flights and plot the distribution of wind speed with length of delay.
+Find the set of flights that were delayed by more than one hour (`dep_delay > 60`). Find the weather patterns associated with those flights and find if the wind_speed and delay are correlated
 
-```{r semijoin, exercise = TRUE}
+```{r naturaljoin, exercise = TRUE}
 # you can use a natural join for flights and weather
 
 ```
+
+```{r naturaljoin-solution}
+flights |> filter(dep_delay > 60) |> inner_join(weather) |> select(dep_delay, wind_speed) |> drop_na() |> cor() 
+```
+
 
 
 ## Relational data wrap up

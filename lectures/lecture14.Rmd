@@ -125,7 +125,7 @@ flights
 
 ## Diagram
 
-![nycflights13 connection diagram](images/relational-nycflights.png)
+![nycflights13 connection diagram](images/relational-nycflights.png){#id .class width=80%}
 
 ## Primary Key
 
@@ -154,7 +154,7 @@ A **foreign key** is a variable (or set of variables) that corresponds to a **pr
 >* `flights$dest` is a foreign key that corresponds to the primary key `airports$faa`.
 
 
-![nycflights13 connection diagram](images/relational-nycflights.png)
+![nycflights13 connection diagram](images/relational-nycflights.png){#id .class width=80%}
 
 ## Finding primary keys
 
@@ -259,7 +259,8 @@ Answer: With an inner join, unmatched rows are not included in the result.
 **Differences between by and join_by**
 
 >* by = "x" corresponds to join_by(x).
->* by = c("a" = "x") corresponds to join_by(a == x).## Venn Diagram of joins
+>* by = c("a" = "x") corresponds to join_by(a == x)
+
 
 
 ## Outer Join
@@ -311,9 +312,10 @@ inner_join(left, right, by = c("dest" = "faa")) |> select(flight, dest, name)
 
 ## Venn Diagram
 
-![Venn diagrm of joins](images/join-venn.png){#id .class width=50%}
+![Venn diagrm of joins](images/join-venn.png){#id .class width=80%}
 
-## One-to-one join: carrier names
+## Joining smaller subset
+
 
 ```{r}
 fiveam <- filter(flights, year == 2013, month == 1, day == 1, hour == 5)
@@ -326,7 +328,7 @@ fiveam |> left_join(airlines,
   select(flight, carrier, name) 
 ```
 
-## Multiple one-to-one
+## More Examples
 
 If we need to link more than two tables (or two tables more than one time), we build up several joins
 
@@ -368,7 +370,7 @@ left_join(fiveam, weather, by = c("year", "month", "day", "hour", "origin")) |>
 
 ## Natural joins
 
-To avoid lost of redundant typing, if two tables have a set of columns in common, those will automatically be used to join (**natural join**)
+To avoid lot of redundant typing, if two tables have a set of columns in common, those will automatically be used to join (**natural join**)
 
 ```{r}
 left_join(fiveam, weather) |>
@@ -377,20 +379,31 @@ left_join(fiveam, weather) |>
 
 ## Exercise
 
-Join the `flights` and `plains` tables using a `left_join` on `tailnum`. Plot the distribution of flight speed `distance / air_time` against `type`.
+Join the `flights` and `planes` tables using a `left_join` on `tailnum`. Plot the distribution of flight speed `distance / air_time` against `type`.
 
 ```{r speed, exercise = TRUE}
 
 ```
 
+```{r speed-solution}
+
+flights |> left_join(planes, join_by(tailnum)) |> mutate(speed = distance/air_time) |> 
+ggplot(aes(x = type, y = speed)) + geom_boxplot()
+```
+
+
 ## Exercise
 
-The California has an Eastern-most longitude (approx.) of -115. Using the `flights` and the `airports` table, use a join to plot the distribution of scheduled departure time (`sched_dep_time`) from NYC broken out by West coast flights (destination `lon < -115`) and otherwise.
+The California has an Eastern-most longitude (approx.) of -115. Using the `flights` and the `airports` table, use a join to plot the distribution of scheduled departure time (`sched_dep_time`)  broken out by West coast flights (destination `lon < -115`) and otherwise.
 
 ```{r rockyflights, exercise = TRUE}
 
 ```
+```{r rockyflights-solution}
+flights |> left_join(airports, join_by(dest == faa)) |> 
+mutate(ca = lon < -115) |> ggplot(aes(x = ca, y = sched_dep_time)) + geom_boxplot()
 
+```
 
 
 ## Filtering using Semi Join
@@ -446,8 +459,16 @@ Picture: https://s3.eu-west-2.amazonaws.com/abpic-media-eu-production/pictures/f
 Base R has a series of **set operation** functions that operate on collects as mathematical sets (collections where items can appear at most once): `intersect`, `union`, `setdiff`, `setequal`, `is.element`, `%in%`
 
 I frequently use these for doing comparisons of vectors:
+
 ```{r}
-"DTW" %in% top_dest$dest # same as is.element
+top_dest <- flights |>
+  count(dest, sort = TRUE) |>
+  head(10)
+
+"DTW" %in% top_dest$dest 
+# same as is.element
+is.element('DTW', top_dest)
+
 intersect(c("BOS", "LAX", "DTW"), top_dest$dest)
 union(c("A", "B", "C"), c("Q", "A", "R"))
 setdiff(c("A", "B", "C"), c("Q", "A", "R"))
@@ -460,6 +481,7 @@ With filtering joins, we can choose which columns link the tables. With the set 
 
 Flights to top destinations that are also delayed:
 ```{r}
+
 flights_to_top <- semi_join(flights, top_dest) 
 flights_delayed <- filter(flights, dep_delay > 0)
 intersect(flights_to_top, flights_delayed)
