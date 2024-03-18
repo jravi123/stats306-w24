@@ -316,8 +316,8 @@ Find all the words, in the `words` collection that start with consonant and end 
 
 `str_replace(v, re, rep)` will replace each match of re in v with rep. The most basic usage is as a sort of find and replace:
 
-```{r}
-str_replace('Give me liberty or give me death', '\w+$', 'pizza')
+```{r str-replace}
+str_replace('Give me liberty or give me death', '\\w+$', 'pizza')
 ```
 
 

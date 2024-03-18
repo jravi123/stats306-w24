@@ -452,7 +452,7 @@ flights |> filter(tailnum == "N539AA") |> print(width = Inf)
 
 The one plane that is represented is N539AA. You can look it up in an [online database](https://www.flightaware.com/resources/registration/N539AA) and find out it's a private jet. My guess is the others are private jets too.
 
-Picture: https://s3.eu-west-2.amazonaws.com/abpic-media-eu-production/pictures/full_size_0415/1625779-large.jpg
+
 
 ## Other set operations functions
 
