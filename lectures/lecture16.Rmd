@@ -233,21 +233,23 @@ The four quantifiers you should know are:
 >* {x,y}: match between x and y of the preceding character.
 >* {x,}: match at least x of the preceding character.
 
-```{r regex-ex1, exercise = T}
-text = "Hello 200, this is a sample string with some random words and 123 numbers."
-# Get all words that start with uppercase
-# get all numbers
-# get all words that are between 3-4 characters in length
-
+```{r}
+text = 'ct cat caat caaat'
+str_extract_all(text, 'ca*t')
+str_extract_all(text, 'ca+t')
+str_extract_all(text, 'ca?t')
+str_extract_all(text, 'ca{2,3}t')
+str_extract_all(text, 'ca{3}t')
 ```
+
 ## Character classes
 
 A "character class" is a special pattern that matches a collection of characters.
 
->* \w: matches any alphanumeric character and is equivalent to using [A-Za-z0-9_]
->* \s: matches single space, tab, newline characters and is equivalent to using [\t\n\r\f\v]
->* \d: matches any digit and is equivalent to using [0-9]
->* \b: match a "word boundary" (more on this in a moment).
+>* `\w`: matches any alphanumeric character and is equivalent to using `[A-Za-z0-9_]`
+>* `\s`: matches single space, tab, newline characters and is equivalent to using `[\t\n\r\f\v]`
+>* `\d`: matches any digit and is equivalent to using `[0-9]`
+>* `\b`: match a "word boundary" (more on this in a moment).
 
 ```{r regex-ex2, exercise = T}
 str_view("this is a word", "\w")
@@ -266,6 +268,16 @@ Raw strings are preferred way of representing regex in almost all languages
 str_view(c("Rafael Nadal", "Roger Federer", "Novak Djokovic"), "\\b")
 ```
 
+## Exercise
+
+```{r regex-ex1, exercise = T}
+text = "Hello 200, this is a sample string with some random words and 123 numbers."
+# Get all words that start with uppercase
+# get all numbers
+# get all words that are between 3-4 characters in length
+# get all words that has the letter 'i' anywhere in the word
+
+```
      
 ## Groups
 
@@ -279,15 +291,9 @@ str_view(text, "cat|dog", html = TRUE)
 
 ```{r}
 text2 = "Get me a cat or get me a cap"
-str_view_all(text2, "ca(t|p)", html = TRUE)
+str_view(text2, "ca(t|p)", html = TRUE)
 ```
 
-Repeat patterns in `( )` using `\\NUMBER` (**backreferences**). Contiguous words with same letter: 
-
-```{r}
-# get all those words that has a two letter pattern that it also ends with
-str_view(words, "(..).*\\1$", html = TRUE)
-```
 
 ## Anchors
 
@@ -299,7 +305,20 @@ For this we have the special anchor characters: ^ and $. The caret ^ matches the
 ```{r}
 x <- c('apple', 'banana', 'pear')
 str_view(x, '^b')
+```
+
+And the words that end with `r` are:
+  
+```{r}
 str_view(x, 'r$')
+```
+
+
+Repeat patterns in `( )` using `\\NUMBER` (**backreferences**). Contiguous words with same letter: 
+
+```{r}
+# get all those words that has a two letter pattern that also ends with
+str_view(words, "(..).*\\1$", html = TRUE)
 ```
 
 
@@ -362,7 +381,7 @@ wa_long$emotion[1:5]
 Let's remove all white space
 ```{r}
 wa_long <- mutate(wa_long,
-                  mean_annotation = str_replace(emotion, "\\s", ""))
+                  emotion = str_replace(emotion, "\\s", ""))
 wa_long$emotion[1:5]
 ```
 
