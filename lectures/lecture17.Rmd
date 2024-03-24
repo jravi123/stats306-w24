@@ -21,7 +21,6 @@ set.seed(2939394)
 
 * Any character `.`
 * Classes of characters with `[]`
-* Complement of classes with `[^]`
 * Start of line `^`, end of line `$`
 * White space `\\s`, digits `\\d` 
 * Repetition: zero or one `?`, zero or more `*`, `+` one or more
@@ -40,8 +39,13 @@ set.seed(2939394)
 
 ```{r}
 wikiart <- read_tsv("./data/WikiArt-Emotions-All.tsv.gz")
+wikiart$Year |> unique()
 wikiart <- mutate(wikiart, Year = as.numeric(str_sub(Year, 1, 4)))
 colnames(wikiart)
+```
+
+```{r}
+wikiart |> head()
 ```
 
 ## Columns
@@ -66,6 +70,8 @@ pivot_longer(wikiart,
              values_to = "mean_annotation") -> wa_long
 
 select(wa_long, Title, rating_type, emotion, mean_annotation)
+
+wa_long$rating_type |> unique()
 ```
 
 ## Find and replace
@@ -105,12 +111,18 @@ filter(wa_long, mean_annotation > 0) |>
 With the tidy data, we have art-rating type-emotion measurements. Let's aggregate up to the piece level after restricting to the `Art (image+title)` rating group.
 
 ```{r}
-filter(wa_long, str_detect(rating_type, "Art")) |>
+filter(wa_long, str_detect(rating_type, "Art")) -> filt_df
+filt_df |> select(ID, rating_type, mean_annotation, emotion) |> head()
+
+filt_df |>
   group_by(ID) |>
   arrange(desc(mean_annotation)) |>
   summarize(strongest_emotion = first(emotion),
             strongest_emotion_value = first(mean_annotation)) ->
   wa_art_strongest
+
+wa_art_strongest
+
 ```
 
 ```{r}
@@ -131,11 +143,13 @@ Now let's get a break down by year of the percentages of the different categorie
 
 ```{r}
 
-group_by(wa_art_strong_year, Year, strongest_emotion) |>
+wa_art_strong_year |> group_by(Year, strongest_emotion) |>
   summarize(count = n()) |>
   mutate(percent = count / sum(count)) -> year_emo
 
-ggplot(filter(wa_art_strong_year, Year > 1900), aes(x = Year, fill = strongest_emotion)) + geom_bar(position = 'fill')
+ggplot(year_emo, 
+       aes(x = Year, fill = strongest_emotion)) + 
+  geom_bar(position = 'fill')
 
 ```
 
@@ -146,7 +160,9 @@ The previous plot is interesting, but hard to read.
 Let's zoom in on the 1960s,
 
 ```{r}
-ggplot(filter(wa_art_strong_year, Year >= 1960, Year < 1970), aes(x = Year, fill = strongest_emotion)) + geom_bar(position = 'fill')
+ggplot(filter(wa_art_strong_year, Year >= 1960, Year < 1970), 
+       aes(x = Year, fill = strongest_emotion)) + 
+  geom_bar(position = 'fill')
 ```
 
 ## Reordering emotion categories
@@ -156,13 +172,15 @@ Recall, we mentioned that strings always sort **lexicographically** while **fact
 ```{r}
 class(wa_art_strong_year$strongest_emotion)
 wa_art_strong_year <- mutate(wa_art_strong_year, se_fac = factor(strongest_emotion))
-class(wa_art_strong_year$strongest_emotion)
+class(wa_art_strong_year$se_fac)
 ```
 
 This won't immediately change the plot:
 
 ```{r}
-ggplot(filter(wa_art_strong_year, Year >= 1960, Year < 1970), aes(x = Year, fill = se_fac)) + geom_bar(position = 'fill')
+ggplot(filter(wa_art_strong_year, Year >= 1960, Year < 1970), 
+       aes(x = Year, fill = se_fac)) + 
+  geom_bar(position = 'fill')
 ```
 
 Because the default order is alphabetical:
@@ -178,7 +196,9 @@ Let's order the colors by largest to smallest share total:
 the1960s <- filter(wa_art_strong_year, Year >= 1960, Year < 1970)
 emotion_order <- count(the1960s, strongest_emotion) |> arrange(desc(n)) 
 emotion_order
-the1960s <- mutate(the1960s, se_fac = factor(strongest_emotion, levels = emotion_order$strongest_emotion))
+the1960s <- mutate(the1960s, 
+                   se_fac = factor(strongest_emotion, 
+                                   levels = emotion_order$strongest_emotion))
 ```
 
 ```{r}
@@ -191,6 +211,7 @@ ggplot(the1960s, aes(x = Year, fill = se_fac)) + geom_bar(position = 'fill')
 Suppose we now tried to use those levels with the entire data set:
 
 ```{r}
+emotion_order$strongest_emotion
 wa_art_strong_year2 <- mutate(wa_art_strong_year, se_factor = factor(strongest_emotion, levels = emotion_order$strongest_emotion))
 
 filter(wa_art_strong_year2, is.na(se_factor)) |> count(strongest_emotion)
@@ -198,53 +219,129 @@ filter(wa_art_strong_year2, is.na(se_factor)) |> count(strongest_emotion)
 
 `parse_factor` (from the `readr` package) will at least give a warning:
 ```{r}
-wa_art_strong_year2 <- mutate(wa_art_strong_year, se_factor = parse_factor(strongest_emotion, levels = emotion_order$strongest_emotion))
+wa_art_strong_year2 <- 
+  mutate(wa_art_strong_year, 
+         se_factor = parse_factor(strongest_emotion, 
+                                  levels = emotion_order$strongest_emotion))
 ```
 
-## Easier reording with `fct_reorder`
+## Easier reording with `fct_infreq`
 
 ```{r}
 ggplot(the1960s, aes(x = Year, fill = fct_infreq(strongest_emotion))) + geom_bar(position = 'fill')
 ```
 
-## Formatting
 
-Suppose we wanted "Happiness" instead of "happiness", etc. The `str_to_title` can help:
-```{r}
-str_to_title(c("happiness", "neutral"))
-```
+## Harry Potter
+Let us do some string analysis on Harry Potter books
 
-We can change all the factor levels with `fct_recode`
+![](images/harry-potter.jpeg){#id .class width=40%}
 
 ```{r}
-newlbls <- the1960s$strongest_emotion |> factor() |> levels() |> str_to_title()
-oldlbls <- the1960s$strongest_emotion |> factor() |> levels()
-names(oldlbls) <- newlbls
 
-mutate(the1960s,
-       strongest_emotion = fct_infreq(strongest_emotion)) |> 
-  mutate(strongest_emotion = fct_recode(strongest_emotion, !!!oldlbls)) |>
-  ggplot(aes(x = Year, fill = strongest_emotion)) + geom_bar(position = 'fill')
+##### run to install necessary packages if they were not installed before
+##### You can comment these lines after running them
+# if (!require(remotes)) install.packages("remotes")
+# if (!require(tidytext)) install.packages("tidytext")
+
+remotes::install_github("bradleyboehmke/harrypotter")
+
+library(tidyverse)
+library(stringr)
+library(harrypotter)
+library(tidytext)
 ```
 
-## Grouping
+`philosophers_stone` is a list containing seventeen entries: one for each chapter of "Harry Potter and the Sorcerer's Stone" (titled differently in the U.K.)
 
-Suppose we consider three groups of emotions
+Instead of reading Harry Potter, we will analyze it like a data set.
 
-Positive: Surprise, anticipation, happiness, humility, trust, optimism, love, agreeableness
-Negative: fear, disgust, sadness, anger, shame, arrogance, pessimism, disagreeableness 
-
-(Notice "neutral" isn't going to be in here, it can stay "neutral")
-
-Let's collapse into these groups:
+Each entry of `philosophers_stone` is a string. There is one string per chapter, so they are pretty long. To figure out how long a string is, we can use the `str_length()` command:
 
 ```{r}
-egrps <- list("positive" = c("surprise", "anticipation", "happiness", "humility", "trust", "optimism", "love", "agreeableness"),
-              "negative" = c("fear", "disgust", "sadness", "anger", "shame", "arrogance", "pessimism", "disagreeableness"))
 
-mutate(the1960s, emo_groups = fct_collapse(factor(strongest_emotion), !!!egrps)) |>
-  ggplot(aes(x = Year, fill = emo_groups)) + geom_bar(position = 'fill')
+ch1 <- philosophers_stone[[1]]
+length(philosophers_stone)
+ch1
+```
+## unlist
+
+Let us take a simple character vector to understand this expression
+
+```{r}
+x = list('abc','xyz')
+x
+x[1]
+y = unlist(x)
+y
+y[1]
 
 ```
+
+## Exercise
+What is the longest (in number of characters) chapter in Philosopher's Stone?
+
+```{r str-length, exercise = T}
+philosophers_stone
+```
+
+```{r str-length-sulution}
+str_length(philosophers_stone) |> max()
+```
+
+## Creating a tibble
+
+We can create a tibble for the books to make our analysis easy
+
+```{r}
+harry_df <- tibble(philosophers_stone) 
+harry_df |> glimpse()
+```
+
+Now say we wanted to find the chapter with the most words. 
+
+```{r}
+harry_df |> mutate(ch_length = str_length(philosophers_stone),
+                    word_count = str_count(philosophers_stone, "\\b\\w+\\b")) |>
+                    select(ch_length, word_count)
+```
+
+## Exercise
+How many 'and' word is there in Ch.1? (Hint: use str_count()).
+
+```{r word-count, exercise = T}
+philosophers_stone
+```
+
+```{r word-count-solution}
+str_count(philosophers_stone[1], "and")
+```
+
+## Exercise
+
+What are the last 100 words of ch1?
+
+```{r last-100, exercise = T}
+philosophers_stone[1]
+```
+
+```{r last-100-solution}
+str_sub(ch1, -100)
+```
+
+## Exercise
+
+Which chapter starts with the word THE POTIONS MASTER?
+
+```{r chapter-start, exercise = T}
+philosophers_stone
+```
+
+```{r chapter-start-solution}
+harry_df |> mutate(first_few_words = str_sub(philosophers_stone, 1, 20)) |>
+  select(first_few_words)
+```
+
+
 
 
