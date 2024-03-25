@@ -309,11 +309,11 @@ harry_df |> mutate(ch_length = str_length(philosophers_stone),
 ## Exercise
 How many 'and' word is there in Ch.1? (Hint: use str_count()).
 
-```{r word-count, exercise = T}
+```{r eg1, exercise = TRUE}
 philosophers_stone
 ```
 
-```{r word-count-solution}
+```{r eg1-solution}
 str_count(philosophers_stone[1], "and")
 ```
 
@@ -321,11 +321,11 @@ str_count(philosophers_stone[1], "and")
 
 What are the last 100 words of ch1?
 
-```{r last-100, exercise = T}
+```{r eg2, exercise = TRUE}
 philosophers_stone[1]
 ```
 
-```{r last-100-solution}
+```{r eg2-solution}
 str_sub(ch1, -100)
 ```
 
@@ -333,11 +333,11 @@ str_sub(ch1, -100)
 
 Which chapter starts with the word THE POTIONS MASTER?
 
-```{r chapter-start, exercise = T}
+```{r eg3, exercise = TRUE}
 philosophers_stone
 ```
 
-```{r chapter-start-solution}
+```{r eg3-solution}
 harry_df |> mutate(first_few_words = str_sub(philosophers_stone, 1, 20)) |>
   select(first_few_words)
 ```
