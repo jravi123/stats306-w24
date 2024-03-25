@@ -282,7 +282,7 @@ y[1]
 What is the longest (in number of characters) chapter in Philosopher's Stone?
 
 ```{r str-length, exercise = T}
-philosophers_stone
+str_length(philosophers_stone)
 ```
 
 ```{r str-length-sulution}
@@ -295,7 +295,8 @@ We can create a tibble for the books to make our analysis easy
 
 ```{r}
 harry_df <- tibble(philosophers_stone) 
-harry_df |> glimpse()
+# harry_df |> glimpse()
+colnames(harry_df)
 ```
 
 Now say we wanted to find the chapter with the most words. 
@@ -307,22 +308,24 @@ harry_df |> mutate(ch_length = str_length(philosophers_stone),
 ```
 
 ## Exercise
-How many 'and' word is there in Ch.1? (Hint: use str_count()).
+How many 'and' words are there in Ch.1? (Hint: use str_count()). Show the count where 'and' is part of the word and also the whole word/
 
 ```{r eg1, exercise = TRUE}
-philosophers_stone
+ch1
 ```
 
 ```{r eg1-solution}
-str_count(philosophers_stone[1], "and")
+str_count(ch1, "and")
+str_count(ch1, '\\band\\b')
 ```
 
 ## Exercise
 
-What are the last 100 words of ch1?
+What are the last 10 words of ch1?
 
 ```{r eg2, exercise = TRUE}
-philosophers_stone[1]
+w <- unlist(str_split(ch1, " "))
+tail(w, 10)
 ```
 
 ```{r eg2-solution}
