@@ -1,5 +1,6 @@
 ---
 subtitle: "Stats 306: Lecture 18"
+title: "Iterations"
 author: "Jayashree Ravi"
 citation: "Content adapted from slides by Dr. Mark Fredrickson"
 output: 
@@ -8,7 +9,6 @@ output:
     css: css/lecture.css
 runtime: shiny_prerendered
 ---
-
 
 ```{r setup, include=FALSE}
 library(learnr)
@@ -88,6 +88,18 @@ y <- c(10, 20, 30, 40)
 We could create the outer product using:
 ```{r}
 matrix(c(x[1] * y, x[2] * y, x[3] * y), ncol = 4, byrow = T)
+```
+
+```{r}
+x = c(1, 2, 3)
+
+sum = 0
+for(a in x){
+  if(a %% 2 == 1){
+    sum = sum + a
+  }
+}
+print(sum)
 ```
 
 ## `for` loops
