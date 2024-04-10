@@ -52,7 +52,9 @@ for some parameters $a_0$ and $a_1$. This defines a whole family of models: one 
 The process of *fitting* a model refers to selecting the particular choice 
  from the family of models that we have chosen, in order to best fit the data.
  
-The fitted model is the member of the model family we have selected that is "closest" to the data. This does not mean that this is the "true" model! In most cases there is no "true" model. The goal of a model is not to uncover truth, but to discover a simple approximation that is still useful.
+The fitted model is the member of the model family we have selected that is "closest" to the data. This does not mean that this is the "true" model! In most cases there is no "true" model. 
+
+**The goal of a model is not to uncover truth, but to discover a simple approximation that is still useful.**
 
 ## Model selection
 There is also the question of which family of models to use. In other words, which types of functions $f(x)$ to use. To use a fashionable example, we could have instead chosen our model family to be
