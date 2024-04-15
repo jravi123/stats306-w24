@@ -367,9 +367,18 @@ The [RMS](https://en.wikipedia.org/wiki/Titanic) Titanic famously sank on April 
 ```{r}
 data(Titanic)
 titanic_df <- Titanic %>% as_tibble %>% mutate(Survived = Survived == "Yes") 
-titanic_df %>% glimpse
+titanic_df |> head()
 ```
-Some EDA
+The last 'n' column provides the total number of records with the same rest of the column values. So let us replicate the rows to match the 'n' value as given below:
+
+```{r}
+
+titanic_df <- titanic_df[rep(row.names(titanic_df), titanic_df$n), -5]
+titanic_df %>% print
+```
+
+
+Now let us do some EDA
 
 ```{r}
 
@@ -452,7 +461,7 @@ mdl
 
 ## Next class
 
-more on logistic regression
+More on logistic regression
 
 
 
