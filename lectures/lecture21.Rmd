@@ -70,7 +70,7 @@ The odds of survival by gender were:
 
 ```{r}
 
-odds <- c(male = .212 / .788, female = .731 / .268)
+odds <- c(male = .212 / .788, female = .7319149 / .2680851)
 log(odds)
 ```
 

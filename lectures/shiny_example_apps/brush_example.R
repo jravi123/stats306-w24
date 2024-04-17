@@ -11,8 +11,7 @@ server <- function(input, output, session) {
     ggplot(mtcars, aes(wt, mpg)) + geom_point()
   }, res = 96)
   
-  output$data <- renderTable({
-    req(input$plot_brush)
+  output$data <- renderPrint({
     mean_x <- 0
     mean_y <- 0
     cat("The mean of x is", mean_x, ", the mean of y is", mean_y)

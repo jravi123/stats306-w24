@@ -76,12 +76,28 @@ https://mastering-shiny.org/basic-app.html
 
 https://rstudio.github.io/cheatsheets/html/shiny.html
 
+## Setting working directory
+
+By default, the console tab opens the `/cloud/project/` folder.
+
+You can check it by running the `getwd()` command
+
+To change the working directory to some other directory use `setwd('directory_path')`
+
+For example to change to `shiny-project-er-injuries` folder you would key in
+
+`setwd('./shiny-project-er-injuries')` using relative path
+
+or
+
+`setwd('/cloud/project/shiny-project-er-injuries')` using absolute path
 
 ## Example 1
 
 Let us now understand the ncaa project. The code is part of this repository under 
 
 project/shiny-project-ncaa
+
 
 
 ## Example 2

@@ -30,10 +30,7 @@ ui <- fluidPage(
                  choices = unique(c(ncaa$Winner,  ncaa$Loser)),
                  options = list(
                    placeholder = "Search Team",
-                   maxItems = '1',
-                   onDropdownOpen = I("function($dropdown) {if (!this.lastQuery.length) {this.close();
-                                      this.settings.openOnFocus = false;}}"),
-                   onType = I("function (str) {if (str === \"\") {this.close();}}")
+                   maxItems = '1'
                  ),
                  selected = "Michigan"
                )
@@ -92,6 +89,7 @@ server <- function(input, output) {
   
   plot <- reactive({
     team <- if (input$team_choice == "T1") input$team1 else input$team2
+    # rearrange so the opening round comes first in Roundlevel
     RoundLevel = c(unique(ncaa$Round)[7], unique(ncaa$Round)[1:6])
     data <- ncaa %>% mutate(Year = year(mdy(Date))) %>%
       mutate(Round = factor(Round, levels = RoundLevel, ordered=T)) %>%
